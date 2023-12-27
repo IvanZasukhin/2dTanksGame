@@ -1,7 +1,7 @@
 import pygame
 
 from settings import *
-from player import Tank
+from player import Player
 
 
 class Level:
@@ -10,7 +10,12 @@ class Level:
         self.display_surface = pygame.display.get_surface()
         # спрайты
         self.all_sprites = pygame.sprite.Group()
-        Tank((400, 300), self.all_sprites)
+
+        self.setup()
+
+    def setup(self):
+        player = Player((300, 300), self.all_sprites, 1)
+        player2 = Player((400, 300), self.all_sprites, 2)
 
     def run(self, dt):
         self.display_surface.fill(BLACK)

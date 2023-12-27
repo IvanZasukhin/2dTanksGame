@@ -1,34 +1,39 @@
-import math
 import pygame
 
 from support import load_image
 
 
-class Tank(pygame.sprite.Sprite):
-    def __init__(self, pos, group):
+class Player(pygame.sprite.Sprite):
+    def __init__(self, pos, group, player_number=1):
         super().__init__(group)
         # Генерация изображения
         self.image = pygame.transform.scale(load_image('tank.png'), (64, 64))
         self.orig_image = self.image
         self.rect = self.image.get_rect(center=pos)
-        self.angle = 5
         # Движение
         self.direction = pygame.math.Vector2()
         self.direction_angle = pygame.math.Vector2(1, 0)
         self.pos = pygame.math.Vector2(self.rect.center)
-        self.speed = 300
+        self.speed = 100
+        self.angle = 3
+        # Управление
+        self.MANAGEMENT = {
+            1: {"left": pygame.K_LEFT, "right": pygame.K_RIGHT, "up": pygame.K_UP,
+                "down": pygame.K_DOWN, "attack": pygame.K_SPACE},
+            2: {"left": pygame.K_a, "right": pygame.K_d, "up": pygame.K_w,
+                "down": pygame.K_s, "attack": pygame.K_e}}[player_number]
 
     def input(self):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
-            self.direction_angle = self.direction_angle.rotate(self.angle)
-        elif keys[pygame.K_RIGHT]:
+        if keys[self.MANAGEMENT["left"]]:
             self.direction_angle = self.direction_angle.rotate(-self.angle)
+        elif keys[self.MANAGEMENT["right"]]:
+            self.direction_angle = self.direction_angle.rotate(self.angle)
 
-        if keys[pygame.K_UP]:
+        if keys[self.MANAGEMENT["up"]]:
             self.direction.y = self.direction_angle.y
             self.direction.x = self.direction_angle.x
-        elif keys[pygame.K_DOWN]:
+        elif keys[self.MANAGEMENT["down"]]:
             self.direction.y = -self.direction_angle.y
             self.direction.x = -self.direction_angle.x
         else:
@@ -46,11 +51,10 @@ class Tank(pygame.sprite.Sprite):
 
     def update(self, dt):
         self.input()
-        self.rotate()
         self.move(dt)
+        self.rotate()
 
     def rotate(self):
         angle = pygame.math.Vector2.angle_to(self.direction_angle, pygame.math.Vector2(0, 1))
-        self.image = pygame.transform.rotozoom(self.orig_image, angle, True)
-        self.rect = self.image.get_rect(center=self.rect.center)
-        self.pos.x, self.pos.y = self.rect.x, self.rect.y
+        self.image = pygame.transform.rotozoom(self.orig_image, angle, 0.5)
+        self.rect = self.image.get_rect(center=(self.pos.x, self.pos.y))
