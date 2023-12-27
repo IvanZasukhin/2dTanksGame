@@ -39,7 +39,7 @@ class Player(pygame.sprite.Sprite):
             full_path = "data/animations/standard/" + animation
             self.animations[animation] = import_image(full_path)
 
-    def move(self, dt):
+    def input(self, dt):
         keys = pygame.key.get_pressed()
         # поворот танка
         movement = 0
@@ -52,6 +52,7 @@ class Player(pygame.sprite.Sprite):
             self.status = "forward"
             movement = 1
 
+        direction_old = self.direction
         if keys[self.MANAGEMENT["left"]]:
             self.speed_animation = 30
             self.status = "left"
@@ -66,12 +67,20 @@ class Player(pygame.sprite.Sprite):
         if movement_v.length() > 0:
             movement_v.normalize_ip()
             self.pos += movement_v * dt * 100 * self.speed
+        # TODO: проблема, если танк заезжает в другой танк на пиксель то он застревает надо
+        #  чтобы после столкновения так отъезжал на 1 пиксель а так же улучшить систему сталкивания
+        for sprite in self.player_sprites:
+            if not (sprite is self):
+                if pygame.sprite.collide_mask(self, sprite):
+                    self.pos -= movement_v * dt * 100 * self.speed
+                    sprite.collision(dt, movement_v)
+                    self.direction = direction_old
         # атака
         if keys[self.MANAGEMENT["attack"]]:
             print("attack")
 
     def update(self, dt):
-        self.move(dt)
+        self.input(dt)
         self.animation(dt)
 
     def animation(self, dt):
@@ -82,3 +91,6 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.animations[self.status][int(self.frame)],
                                              self.direction.angle_to((0, -1)))
         self.rect = self.image.get_rect(center=self.pos)
+
+    def collision(self, dt, movement_v):
+        self.pos += movement_v * dt * 100 * self.speed
