@@ -1,60 +1,84 @@
-import pygame
-
-from support import load_image
+from support import *
+from timer import Timer
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, group, player_number=1):
-        super().__init__(group)
-        # Генерация изображения
-        self.image = pygame.transform.scale(load_image('tank.png'), (64, 64))
-        self.orig_image = self.image
-        self.rect = self.image.get_rect(center=pos)
-        # Движение
-        self.direction = pygame.math.Vector2()
-        self.direction_angle = pygame.math.Vector2(1, 0)
-        self.pos = pygame.math.Vector2(self.rect.center)
-        self.speed = 100
-        self.angle = 3
-        # Управление
+    def __init__(self, pos, player_number, walls, all_sprites, player_sprites):
+        super().__init__(all_sprites, player_sprites)
+        self.all_sprites = all_sprites
+        self.player_sprites = player_sprites
+        self.walls = walls
         self.MANAGEMENT = {
             1: {"left": pygame.K_LEFT, "right": pygame.K_RIGHT, "up": pygame.K_UP,
                 "down": pygame.K_DOWN, "attack": pygame.K_SPACE},
             2: {"left": pygame.K_a, "right": pygame.K_d, "up": pygame.K_w,
                 "down": pygame.K_s, "attack": pygame.K_e}}[player_number]
+        # Генерация изображения
+        self.animations = {"stop": [], "forward": [], "left": [], "right": []}
+        self.status = "stop"
+        self.speed_animation = 15
+        self.frame = 0
+        self.import_animation()
 
-    def input(self):
-        keys = pygame.key.get_pressed()
-        if keys[self.MANAGEMENT["left"]]:
-            self.direction_angle = self.direction_angle.rotate(-self.angle)
-        elif keys[self.MANAGEMENT["right"]]:
-            self.direction_angle = self.direction_angle.rotate(self.angle)
+        self.image = self.animations[self.status][self.frame]
+        self.orig_image = self.animations[self.status][self.frame]
+        self.rect = self.image.get_rect(center=pos)
+        # Движение
 
-        if keys[self.MANAGEMENT["up"]]:
-            self.direction.y = self.direction_angle.y
-            self.direction.x = self.direction_angle.x
-        elif keys[self.MANAGEMENT["down"]]:
-            self.direction.y = -self.direction_angle.y
-            self.direction.x = -self.direction_angle.x
-        else:
-            self.direction.y = 0
-            self.direction.x = 0
+        self.pos = pygame.Vector2(pos)
+        self.direction = pygame.Vector2((0, -1))
+        self.speed = 1
+        self.speed_angle = 0.5
+        # Таймер
+        self.timers = {
+            "attack": Timer(360)
+        }
+
+    def import_animation(self):
+        for animation in self.animations.keys():
+            full_path = "data/animations/standard/" + animation
+            self.animations[animation] = import_image(full_path)
 
     def move(self, dt):
-        if self.direction.magnitude() > 0:
-            self.direction = self.direction.normalize()
-        self.pos.x += self.direction.x * self.speed * dt
-        self.rect.x = self.pos.x
+        keys = pygame.key.get_pressed()
+        # поворот танка
+        movement = 0
+        self.speed_animation = 15
+        self.status = "stop"
+        if keys[self.MANAGEMENT["up"]]:
+            self.status = "forward"
+            movement = -1
+        elif keys[self.MANAGEMENT["down"]]:
+            self.status = "forward"
+            movement = 1
 
-        self.pos.y += self.direction.y * self.speed * dt
-        self.rect.y = self.pos.y
+        if keys[self.MANAGEMENT["left"]]:
+            self.speed_animation = 30
+            self.status = "left"
+            self.direction = self.direction.rotate(dt * -360 * self.speed_angle)
+        elif keys[self.MANAGEMENT["right"]]:
+            self.speed_animation = 30
+            self.status = "right"
+            self.direction = self.direction.rotate(dt * 360 * self.speed_angle)
+
+        # движение танка
+        movement_v = self.direction * movement
+        if movement_v.length() > 0:
+            movement_v.normalize_ip()
+            self.pos += movement_v * dt * 100 * self.speed
+        # атака
+        if keys[self.MANAGEMENT["attack"]]:
+            print("attack")
 
     def update(self, dt):
-        self.input()
         self.move(dt)
-        self.rotate()
+        self.animation(dt)
 
-    def rotate(self):
-        angle = pygame.math.Vector2.angle_to(self.direction_angle, pygame.math.Vector2(0, 1))
-        self.image = pygame.transform.rotozoom(self.orig_image, angle, 0.5)
-        self.rect = self.image.get_rect(center=(self.pos.x, self.pos.y))
+    def animation(self, dt):
+        self.frame += self.speed_animation * dt
+        if self.frame >= len(self.animations[self.status]):
+            self.frame = 0
+        self.image = self.animations[self.status][int(self.frame)]
+        self.image = pygame.transform.rotate(self.animations[self.status][int(self.frame)],
+                                             self.direction.angle_to((0, -1)))
+        self.rect = self.image.get_rect(center=self.pos)

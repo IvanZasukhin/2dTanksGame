@@ -18,3 +18,14 @@ def load_image(name, colorkey=None):
     else:
         image = image.convert_alpha()
     return image
+
+
+def import_image(path):
+    surface_list = []
+    for _, _, image_files in os.walk(path):
+        for image in image_files:
+            fullname = path + "/" + image
+            im = pygame.image.load(fullname).convert_alpha()
+            image_surface = pygame.transform.scale(im, (64, 64))
+            surface_list.append(image_surface)
+    return surface_list
