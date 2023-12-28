@@ -1,19 +1,16 @@
 from support import *
 from timer import Timer
 from settings import *
-
-MANAGEMENT = {
-    1: {"left": pygame.K_LEFT, "right": pygame.K_RIGHT, "up": pygame.K_UP,
-        "down": pygame.K_DOWN, "attack": pygame.K_SPACE},
-    2: {"left": pygame.K_a, "right": pygame.K_d, "up": pygame.K_w,
-        "down": pygame.K_s, "attack": pygame.K_e}}
+from bullet import Bullet
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, player_number, group, collision_sprites):
+    def __init__(self, pos, player_number, group, collision_sprites, bullet_sprites):
         super().__init__(group, collision_sprites)
-        self.collision_sprites = collision_sprites
+        self.all_sprites = group[0]
         self.player_sprites = group[1]
+        self.collision_sprites = collision_sprites
+        self.bullet_sprites = bullet_sprites
 
         self.MANAGEMENT = MANAGEMENT[player_number]
         # Генерация изображения
@@ -37,7 +34,7 @@ class Player(pygame.sprite.Sprite):
         self.speed_angle = 0.5
         # Таймер
         self.timers = {
-            "attack": Timer(360)
+            "use attack": Timer(900)
         }
 
     def import_animation(self):
@@ -59,13 +56,21 @@ class Player(pygame.sprite.Sprite):
         elif keys[self.MANAGEMENT["right"]]:
             self.direction_rotation = 1
         # атака
-        if keys[self.MANAGEMENT["attack"]]:
-            print("attack")
+        if not self.timers["use attack"].active and keys[self.MANAGEMENT["attack"]]:
+            self.timers["use attack"].activate()
+            print(self.direction)
+            Bullet((self.pos.x, self.pos.y), -self.direction, self.all_sprites, self.bullet_sprites)
+            # print("attack")
+
+    def update_timers(self):
+        for timer in self.timers.values():
+            timer.update()
 
     def update(self, dt):
         self.input()
         self.move(dt)
         self.animation(dt)
+        self.update_timers()
 
     def move(self, dt):
         self.status = "stop"
@@ -76,7 +81,7 @@ class Player(pygame.sprite.Sprite):
             self.status = "forward"
             movement_v.normalize_ip()
             self.pos += movement_v * dt * 100 * self.speed
-            self.collision(dt, movement_v)
+        self.collision(dt)
 
         # поворот танка
         if self.direction_rotation < 0:
@@ -97,21 +102,18 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=self.pos)
         self.collision_turn(dt)
 
-    def collision(self, dt, movement_v):
+    def collision(self, dt):
         for sprite in self.collision_sprites.sprites():
-            if self is not sprite and sprite.is_collided_with(self):
-                sprite.movement_collision(dt, movement_v)
+            vol = sprite.is_collided_with(self)
+            if self is not sprite and vol:
                 if self.movement:
-                    self.pos += movement_v * dt * 100 * self.speed * self.movement
+                    self.movement_collision(dt, self.direction)
 
     def collision_turn(self, dt):
         for sprite in self.collision_sprites.sprites():
             if self is not sprite and sprite.is_collided_with(self):
-                if sprite in self.player_sprites:
-                    sprite.movement_collision(dt, -self.direction)
-                else:
-                    self.movement_collision(dt, -self.direction)  # при столкновении со стенкой
                 if self.old_direction != self.direction:
+                    self.movement_collision(dt, self.direction)
                     self.direction = self.direction.rotate(dt * 360 * self.speed_angle * -self.direction_rotation)
                     angle = self.direction.angle_to((0, -1))
                     self.image = pygame.transform.rotate(self.animations[self.status][int(self.frame)], angle)
