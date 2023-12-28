@@ -1,3 +1,5 @@
+import pygame.sprite
+
 from support import *
 from timer import Timer
 from settings import *
@@ -26,8 +28,9 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=pos)
         # Движение
         self.old_direction = 0
-        self.direction_rotation = 0
         self.movement = 0
+        self.old_movement = 0
+        self.direction_rotation = 0
         self.pos = pygame.Vector2(pos)
         self.direction = pygame.Vector2((0, -1))
         self.speed = 1
@@ -107,20 +110,25 @@ class Player(pygame.sprite.Sprite):
             vol = sprite.is_collided_with(self)
             if self is not sprite and vol:
                 if self.movement:
-                    self.movement_collision(dt, self.direction)
+                    self.movement_collision(dt, self.direction * self.old_movement)
+            elif not vol:
+                self.old_movement = -self.movement
 
     def collision_turn(self, dt):
         for sprite in self.collision_sprites.sprites():
-            if self is not sprite and sprite.is_collided_with(self):
+            vol = sprite.is_collided_with(self)
+            if self is not sprite and vol:
                 if self.old_direction != self.direction:
-                    self.movement_collision(dt, self.direction)
+                    self.movement_collision(dt, self.direction * self.old_movement)
                     self.direction = self.direction.rotate(dt * 360 * self.speed_angle * -self.direction_rotation)
                     angle = self.direction.angle_to((0, -1))
                     self.image = pygame.transform.rotate(self.animations[self.status][int(self.frame)], angle)
                     self.rect = self.image.get_rect(center=self.pos)
+            elif not vol:
+                self.old_movement = -self.movement
 
     def movement_collision(self, dt, movement_v):
         self.pos += movement_v * dt * 100 * self.speed
 
     def is_collided_with(self, sprite):
-        return pygame.sprite.collide_mask(self, sprite)
+        return pygame.sprite.collide_mask(self, sprite) # проблема с пикселем
