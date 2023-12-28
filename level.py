@@ -13,12 +13,13 @@ class Level:
         self.player_sprites = pygame.sprite.Group()
         self.walls = pygame.sprite.Group()
         self.collision_sprites = pygame.sprite.Group()
+        self.bullet_sprites = pygame.sprite.Group()
 
         self.setup()
 
     def setup(self):
-        Player((300, 300), 1, (self.all_sprites, self.player_sprites), self.collision_sprites)
-        Player((400, 300), 2, (self.all_sprites, self.player_sprites), self.collision_sprites)
+        Player((300, 300), 1, (self.all_sprites, self.player_sprites), self.collision_sprites, self.bullet_sprites)
+        Player((400, 300), 2, (self.all_sprites, self.player_sprites), self.collision_sprites, self.bullet_sprites)
 
     def run(self, dt):
         self.display_surface.fill(WHITE)
