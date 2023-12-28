@@ -1,7 +1,7 @@
 import pygame
-from random import choice, randint
+from random import choice
 
-RES = WIDTH, HEIGHT = 800, 800
+RES = WIDTH, HEIGHT = 1202, 802
 TILE = 100
 ORANGE = pygame.Color('darkorange')
 BLACK = pygame.Color('black')
@@ -12,6 +12,7 @@ screen = pygame.display.set_mode(RES)
 clock = pygame.time.Clock()
 
 all_sprites = pygame.sprite.Group()
+collision_sprites = pygame.sprite.Group()
 v_walls = pygame.sprite.Group()
 h_walls = pygame.sprite.Group()
 
@@ -26,15 +27,14 @@ class Cell:
         x, y = self.x * TILE, self.y * TILE
         if self.visited:
             pygame.draw.rect(screen, BLACK, (x, y, TILE, TILE))
-
         if self.walls['top']:
             pygame.draw.line(screen, ORANGE, (x, y), (x + TILE, y), 3)
         if self.walls['right']:
             pygame.draw.line(screen, ORANGE, (x + TILE, y), (x + TILE, y + TILE), 3)
         if self.walls['bottom']:
-            pygame.draw.line(screen, ORANGE, (x + TILE, y + TILE), (x, y + TILE), 3)
+            pygame.draw.line(screen, ORANGE, (x, y + TILE), (x + TILE, y + TILE), 3)
         if self.walls['left']:
-            pygame.draw.line(screen, ORANGE, (x, y + TILE), (x, y), 3)
+            pygame.draw.line(screen, ORANGE, (x, y), (x, y + TILE), 3)
 
     def check_cell(self, x, y):
         find_index = lambda x, y: x + y * cols
@@ -63,8 +63,8 @@ class Cell:
 
 
 class Border(pygame.sprite.Sprite):
-    def __init__(self, x1, y1, x2, y2):
-        super().__init__(all_sprites)
+    def __init__(self, collision_sprites, x1, y1, x2, y2):
+        super().__init__(all_sprites, collision_sprites)
         if x1 == x2:  # вертикальная стенка
             self.add(v_walls)
             self.image = pygame.Surface([3, y2 - y1])
@@ -135,24 +135,21 @@ while next_cell or stack:
 
 # Уменьшение кол-ва стенок
 for cell in grid_cells:
-    count = randint(0, 3)
-    for _ in range(count):
-        next_cell = check_neighbors_second(cell)
-        remove_walls(cell, next_cell)
+    next_cell = check_neighbors_second(cell)
+    remove_walls(cell, next_cell)
 
 # Создание спрайта стен
 for cell in grid_cells:
     x = cell.x
     y = cell.y
     if cell.walls['top']:
-        Border(x, y, x + TILE, y)
+        Border(collision_sprites, x, y, x + TILE, y)
     if cell.walls['right']:
-        Border(x + TILE, y, x + TILE, y + TILE)
+        Border(collision_sprites, x + TILE, y, x + TILE, y + TILE)
     if cell.walls['bottom']:
-        Border(x, y + TILE, x + TILE, y + TILE)
+        Border(collision_sprites, x, y + TILE, x + TILE, y + TILE)
     if cell.walls['left']:
-        Border(x, y, x, y + TILE)
-
+        Border(collision_sprites, x, y, x, y + TILE)
 
 # Основной цикл
 while True:
