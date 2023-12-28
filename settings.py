@@ -1,6 +1,6 @@
 from pygame import Color
 
-FPS = 60
+FPS = 50
 BLACK = Color('black')
 RED = Color('red')
 BLUE = Color('blue')
