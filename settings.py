@@ -2,10 +2,11 @@ from pygame import Color, K_LEFT, K_DOWN, K_a, K_s, K_RIGHT, K_SPACE, K_d, K_e, 
 
 FPS = 50
 BLACK = Color('black')
+ORANGE = Color('darkorange')
 RED = Color('red')
 BLUE = Color('blue')
 WHITE = Color('white')
-SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = (600, 600)
+SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = (1002, 1002)
 MANAGEMENT = {
     1: {"left": K_LEFT, "right": K_RIGHT, "up": K_UP,
         "down": K_DOWN, "attack": K_SPACE},
