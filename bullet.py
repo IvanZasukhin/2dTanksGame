@@ -14,8 +14,9 @@ class Bullet(pygame.sprite.Sprite):
                            (self.radius, self.radius), self.radius)
         self.rect = pygame.Rect(self.x, self.y, 2 * self.radius, 2 * self.radius)
         direction.normalize_ip()
-        self.vx = direction.x * 2
-        self.vy = direction.y * 2
+        self.speed = 3
+        self.vx = direction.x * 2 * self.speed
+        self.vy = direction.y * 2 * self.speed
 
     def update(self, dt):
         self.rect = self.rect.move(self.vx, self.vy)
