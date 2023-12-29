@@ -50,18 +50,18 @@ class Level:
 
         # Создание спрайта стен
         for cell in self.grid_cells:
-            x = cell.x * self.TILE
-            y = cell.y * self.TILE
+            x = cell.x * self.TILE - 2
+            y = cell.y * self.TILE - 2
             if cell.walls['top']:
-                Border(self.all_sprites, self.v_walls, self.h_walls, self.collision_sprites, x, y, x + self.TILE, y)
+                Border(self.all_sprites, self.v_walls, self.h_walls, self.collision_sprites, x, y, x + self.TILE + 2, y)
             if cell.walls['right']:
                 Border(self.all_sprites, self.v_walls, self.h_walls, self.collision_sprites, x + self.TILE, y,
-                       x + self.TILE, y + self.TILE)
+                       x + self.TILE, y + self.TILE + 2)
             if cell.walls['bottom']:
                 Border(self.all_sprites, self.v_walls, self.h_walls, self.collision_sprites, x, y + self.TILE,
-                       x + self.TILE, y + self.TILE)
+                       x + self.TILE + 2, y + self.TILE)
             if cell.walls['left']:
-                Border(self.all_sprites, self.v_walls, self.h_walls, self.collision_sprites, x, y, x, y + self.TILE)
+                Border(self.all_sprites, self.v_walls, self.h_walls, self.collision_sprites, x, y, x, y + self.TILE + 2)
 
     def setup(self):
         Player((300, 300), 1, (self.all_sprites, self.player_sprites), self.collision_sprites, self.bullet_sprites,

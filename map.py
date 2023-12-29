@@ -17,13 +17,13 @@ class Cell:
         if self.visited:
             pygame.draw.rect(self.screen, pygame.Color("gray"), (x, y, self.TILE, self.TILE))
         if self.walls['top']:
-            pygame.draw.line(self.screen, ORANGE, (x, y), (x + self.TILE, y), 3)
+            pygame.draw.line(self.screen, ORANGE, (x, y), (x + self.TILE, y), 5)
         if self.walls['right']:
-            pygame.draw.line(self.screen, ORANGE, (x + self.TILE, y), (x + self.TILE, y + self.TILE), 3)
+            pygame.draw.line(self.screen, ORANGE, (x + self.TILE, y), (x + self.TILE, y + self.TILE), 5)
         if self.walls['bottom']:
-            pygame.draw.line(self.screen, ORANGE, (x, y + self.TILE), (x + self.TILE, y + self.TILE), 3)
+            pygame.draw.line(self.screen, ORANGE, (x, y + self.TILE), (x + self.TILE, y + self.TILE), 5)
         if self.walls['left']:
-            pygame.draw.line(self.screen, ORANGE, (x, y), (x, y + self.TILE), 3)
+            pygame.draw.line(self.screen, ORANGE, (x, y), (x, y + self.TILE), 5)
 
     def check_cell(self, grid_cells, x, y):
         if x < 0 or x > self.cols - 1 or y < 0 or y > self.rows - 1:
@@ -55,12 +55,12 @@ class Border(pygame.sprite.Sprite):
         super().__init__(all_sprites, collision_sprites)
         if x1 == x2:  # вертикальная стенка
             self.add(v_walls)
-            self.image = pygame.Surface([3, y2 - y1])
-            self.rect = pygame.Rect(x1, y1, 3, y2 - y1)
+            self.image = pygame.Surface([5, y2 - y1])
+            self.rect = pygame.Rect(x1, y1, 5, y2 - y1)
         else:  # горизонтальная стенка
             self.add(h_walls)
-            self.image = pygame.Surface([x2 - x1, 3])
-            self.rect = pygame.Rect(x1, y1, x2 - x1, 3)
+            self.image = pygame.Surface([x2 - x1, 5])
+            self.rect = pygame.Rect(x1, y1, x2 - x1, 5)
         self.mask = pygame.mask.from_surface(self.image)
 
     def is_collided_with(self, sprite):
