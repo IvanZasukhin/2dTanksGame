@@ -7,15 +7,17 @@ from bullet import Bullet
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, player_number, group, collision_sprites, bullet_sprites):
+    def __init__(self, pos, player_number, group, collision_sprites, bullet_sprites, v_walls, h_walls):
         super().__init__(group, collision_sprites)
         self.all_sprites = group[0]
         self.player_sprites = group[1]
         self.collision_sprites = collision_sprites
         self.bullet_sprites = bullet_sprites
-
+        self.v_walls = v_walls
+        self.h_walls = h_walls
         self.MANAGEMENT = MANAGEMENT[player_number]
         # Генерация изображения
+
         # настройки анимации
         self.animations = {"stop": [], "forward": [], "left": [], "right": [], "back": []}
         self.status = "stop"
@@ -26,10 +28,11 @@ class Player(pygame.sprite.Sprite):
         self.image = self.animations[self.status][self.frame]
         self.orig_image = self.animations[self.status][self.frame]
         self.rect = self.image.get_rect(center=pos)
+        self.hit_box = self.rect.copy().inflate((10, 10))
+        self.mask = pygame.mask.from_surface(self.image)
         # Движение
         self.old_direction = 0
         self.movement = 0
-        self.old_movement = 0
         self.direction_rotation = 0
         self.pos = pygame.Vector2(pos)
         self.direction = pygame.Vector2((0, -1))
@@ -37,7 +40,7 @@ class Player(pygame.sprite.Sprite):
         self.speed_angle = 0.5
         # Таймер
         self.timers = {
-            "use attack": Timer(900)
+            "use attack": Timer(50)
         }
 
     def import_animation(self):
@@ -62,8 +65,9 @@ class Player(pygame.sprite.Sprite):
         if not self.timers["use attack"].active and keys[self.MANAGEMENT["attack"]]:
             self.timers["use attack"].activate()
             print(self.direction)
-            Bullet((self.pos.x, self.pos.y), -self.direction, self.all_sprites, self.bullet_sprites)
-            # print("attack")
+            Bullet((self.pos.x, self.pos.y), -self.direction, self.player_sprites, self.v_walls, self.h_walls,
+                   self.all_sprites,
+                   self.bullet_sprites)
 
     def update_timers(self):
         for timer in self.timers.values():
@@ -83,7 +87,15 @@ class Player(pygame.sprite.Sprite):
             self.speed_animation = 15
             self.status = "forward"
             movement_v.normalize_ip()
-            self.pos += movement_v * dt * 100 * self.speed
+            # X
+            self.pos.x += movement_v.x * dt * 100 * self.speed
+            self.hit_box.centerx = round(self.pos.x)
+            self.rect.centerx = self.hit_box.centerx
+
+            # Y
+            self.pos.y += movement_v.y * dt * 100 * self.speed
+            self.hit_box.centery = round(self.pos.y)
+            self.rect.centery = self.hit_box.centery
         self.collision(dt)
 
         # поворот танка
@@ -102,33 +114,33 @@ class Player(pygame.sprite.Sprite):
         self.image = self.animations[self.status][int(self.frame)]
         angle = self.direction.angle_to((0, -1))
         self.image = pygame.transform.rotate(self.animations[self.status][int(self.frame)], angle)
-        self.rect = self.image.get_rect(center=self.pos)
-        self.collision_turn(dt)
+        self.rect = self.image.get_rect(center=self.hit_box.center)
+        self.orig_image = pygame.transform.rotate(self.animations[self.status][0], angle)
+        self.mask = pygame.mask.from_surface(self.orig_image)
+        self.collision_turn()
 
     def collision(self, dt):
         for sprite in self.collision_sprites.sprites():
-            vol = sprite.is_collided_with(self)
-            if self is not sprite and vol:
-                if self.movement:
-                    self.movement_collision(dt, self.direction * self.old_movement)
-            elif not vol:
-                self.old_movement = -self.movement
+            if self is not sprite and sprite.is_collided_with(self):
+                movement_v = self.direction * self.movement
+                self.pos.x -= movement_v.x * dt * 100 * self.speed
+                self.hit_box.centerx = round(self.pos.x)
+                self.rect.centerx = self.hit_box.centerx
 
-    def collision_turn(self, dt):
+                self.pos.y -= movement_v.y * dt * 100 * self.speed
+                self.hit_box.centery = round(self.pos.y)
+                self.rect.centery = self.hit_box.centery
+
+    def collision_turn(self):
         for sprite in self.collision_sprites.sprites():
-            vol = sprite.is_collided_with(self)
-            if self is not sprite and vol:
+            if self is not sprite and sprite.is_collided_with(self):
                 if self.old_direction != self.direction:
-                    self.movement_collision(dt, self.direction * self.old_movement)
-                    self.direction = self.direction.rotate(dt * 360 * self.speed_angle * -self.direction_rotation)
                     angle = self.direction.angle_to((0, -1))
                     self.image = pygame.transform.rotate(self.animations[self.status][int(self.frame)], angle)
-                    self.rect = self.image.get_rect(center=self.pos)
-            elif not vol:
-                self.old_movement = -self.movement
 
-    def movement_collision(self, dt, movement_v):
-        self.pos += movement_v * dt * 100 * self.speed
+                    self.orig_image = pygame.transform.rotate(self.animations[self.status][0], angle)
+                    self.mask = pygame.mask.from_surface(self.orig_image)
+                    self.rect = self.image.get_rect(center=self.hit_box.center)
 
     def is_collided_with(self, sprite):
-        return pygame.sprite.collide_mask(self, sprite) # проблема с пикселем
+        return pygame.sprite.collide_mask(self, sprite)

@@ -2,38 +2,33 @@ import pygame
 from settings import *
 from random import choice
 
-TILE = 200
-cols, rows = SCREEN_WIDTH // TILE, SCREEN_HEIGHT // TILE
-
-v_walls = pygame.sprite.Group()
-h_walls = pygame.sprite.Group()
-
 
 class Cell:
-    def __init__(self, screen, x, y):
+    def __init__(self, screen, x, y, tile, cols, rows):
         self.screen = screen
         self.x, self.y = x, y
         self.walls = {'top': True, 'right': True, 'bottom': True, 'left': True}
         self.visited = False
+        self.TILE = tile
+        self.cols, self.rows = cols, rows
 
     def draw(self):
-        x, y = self.x * TILE, self.y * TILE
+        x, y = self.x * self.TILE, self.y * self.TILE
         if self.visited:
-            pygame.draw.rect(self.screen, BLACK, (x, y, TILE, TILE))
+            pygame.draw.rect(self.screen, pygame.Color("gray"), (x, y, self.TILE, self.TILE))
         if self.walls['top']:
-            pygame.draw.line(self.screen, ORANGE, (x, y), (x + TILE, y), 3)
+            pygame.draw.line(self.screen, ORANGE, (x, y), (x + self.TILE, y), 3)
         if self.walls['right']:
-            pygame.draw.line(self.screen, ORANGE, (x + TILE, y), (x + TILE, y + TILE), 3)
+            pygame.draw.line(self.screen, ORANGE, (x + self.TILE, y), (x + self.TILE, y + self.TILE), 3)
         if self.walls['bottom']:
-            pygame.draw.line(self.screen, ORANGE, (x, y + TILE), (x + TILE, y + TILE), 3)
+            pygame.draw.line(self.screen, ORANGE, (x, y + self.TILE), (x + self.TILE, y + self.TILE), 3)
         if self.walls['left']:
-            pygame.draw.line(self.screen, ORANGE, (x, y), (x, y + TILE), 3)
+            pygame.draw.line(self.screen, ORANGE, (x, y), (x, y + self.TILE), 3)
 
     def check_cell(self, grid_cells, x, y):
-        find_index = lambda x, y: x + y * cols
-        if x < 0 or x > cols - 1 or y < 0 or y > rows - 1:
+        if x < 0 or x > self.cols - 1 or y < 0 or y > self.rows - 1:
             return False
-        return grid_cells[find_index(x, y)]
+        return grid_cells[x + y * self.cols]
 
     def check_neighbors(self, grid_cells):
         neighbors = []
@@ -56,7 +51,7 @@ class Cell:
 
 
 class Border(pygame.sprite.Sprite):
-    def __init__(self, all_sprites, collision_sprites, x1, y1, x2, y2):
+    def __init__(self, all_sprites, v_walls, h_walls, collision_sprites, x1, y1, x2, y2):
         super().__init__(all_sprites, collision_sprites)
         if x1 == x2:  # вертикальная стенка
             self.add(v_walls)
@@ -66,6 +61,7 @@ class Border(pygame.sprite.Sprite):
             self.add(h_walls)
             self.image = pygame.Surface([x2 - x1, 3])
             self.rect = pygame.Rect(x1, y1, x2 - x1, 3)
+        self.mask = pygame.mask.from_surface(self.image)
 
     def is_collided_with(self, sprite):
         return pygame.sprite.collide_mask(self, sprite)
@@ -89,20 +85,3 @@ def check_neighbors_second(cell, grid_cells):
         return choice(neighbors)
     else:
         return False
-
-
-def remove_walls(current, next):
-    dx = current.x - next.x
-    if dx == 1:
-        current.walls['left'] = False
-        next.walls['right'] = False
-    elif dx == -1:
-        current.walls['right'] = False
-        next.walls['left'] = False
-    dy = current.y - next.y
-    if dy == 1:
-        current.walls['top'] = False
-        next.walls['bottom'] = False
-    elif dy == -1:
-        current.walls['bottom'] = False
-        next.walls['top'] = False

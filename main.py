@@ -2,7 +2,6 @@ import sys
 import pygame
 
 from settings import *
-from level import Level
 
 
 class Game:
@@ -23,6 +22,8 @@ class Game:
             self.level.run(dt)
             pygame.display.update()
 
+
+from level import Level
 
 if __name__ == '__main__':
     game = Game()
