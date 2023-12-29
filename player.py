@@ -117,7 +117,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=self.hit_box.center)
         self.orig_image = pygame.transform.rotate(self.animations[self.status][0], angle)
         self.mask = pygame.mask.from_surface(self.orig_image)
-        self.collision_turn()
+        self.collision_turn(dt)
 
     def collision(self, dt):
         for sprite in self.collision_sprites.sprites():
@@ -131,10 +131,11 @@ class Player(pygame.sprite.Sprite):
                 self.hit_box.centery = round(self.pos.y)
                 self.rect.centery = self.hit_box.centery
 
-    def collision_turn(self):
+    def collision_turn(self, dt):
         for sprite in self.collision_sprites.sprites():
             if self is not sprite and sprite.is_collided_with(self):
                 if self.old_direction != self.direction:
+                    self.direction = self.direction.rotate(dt * 360 * self.speed_angle * -self.direction_rotation)
                     angle = self.direction.angle_to((0, -1))
                     self.image = pygame.transform.rotate(self.animations[self.status][int(self.frame)], angle)
 
