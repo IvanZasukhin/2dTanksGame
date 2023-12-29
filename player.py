@@ -113,9 +113,9 @@ class Player(pygame.sprite.Sprite):
             self.frame = 0
         self.image = self.animations[self.status][int(self.frame)]
         angle = self.direction.angle_to((0, -1))
-        self.image = pygame.transform.rotate(self.animations[self.status][int(self.frame)], angle)
+        self.image = pygame.transform.rotozoom(self.animations[self.status][int(self.frame)], angle, 0.125)
         self.rect = self.image.get_rect(center=self.hit_box.center)
-        self.orig_image = pygame.transform.rotate(self.animations[self.status][0], angle)
+        self.orig_image = pygame.transform.rotozoom(self.animations[self.status][0], angle, 0.125)
         self.mask = pygame.mask.from_surface(self.orig_image)
         self.collision_turn(dt)
 
@@ -137,9 +137,9 @@ class Player(pygame.sprite.Sprite):
                 if self.old_direction != self.direction:
                     self.direction = self.direction.rotate(dt * 360 * self.speed_angle * -self.direction_rotation)
                     angle = self.direction.angle_to((0, -1))
-                    self.image = pygame.transform.rotate(self.animations[self.status][int(self.frame)], angle)
+                    self.image = pygame.transform.rotozoom(self.animations[self.status][int(self.frame)], angle, 0.125)
 
-                    self.orig_image = pygame.transform.rotate(self.animations[self.status][0], angle)
+                    self.orig_image = pygame.transform.rotozoom(self.animations[self.status][0], angle, 0.125)
                     self.mask = pygame.mask.from_surface(self.orig_image)
                     self.rect = self.image.get_rect(center=self.hit_box.center)
 

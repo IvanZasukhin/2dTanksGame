@@ -8,7 +8,7 @@ def import_image(path):
         for im in image_files:
             fullname = path + "/" + im
             im = image.load(fullname).convert_alpha()
-            image_surface = transform.scale(im, (64, 64))
+            image_surface = transform.scale(im, (512, 512))
             surface_list.append(image_surface)
     return surface_list
 
