@@ -27,6 +27,7 @@ class Player(pygame.sprite.Sprite):
         # настройки изображения
         self.image = self.animations[self.status][self.frame]
         self.orig_image = self.animations[self.status][self.frame]
+        self.player_size = 0.125
         self.rect = self.image.get_rect(center=pos)
         self.hit_box = self.rect.copy().inflate((10, 10))
         self.mask = pygame.mask.from_surface(self.image)
@@ -36,7 +37,7 @@ class Player(pygame.sprite.Sprite):
         self.direction_rotation = 0
         self.pos = pygame.Vector2(pos)
         self.direction = pygame.Vector2((0, -1))
-        self.speed = 1
+        self.speed = 2
         self.speed_angle = 0.5
         # Таймер
         self.timers = {
@@ -63,10 +64,13 @@ class Player(pygame.sprite.Sprite):
             self.direction_rotation = 1
         # атака
         if not self.timers["use attack"].active and keys[self.MANAGEMENT["attack"]]:
-            self.timers["use attack"].activate()
-            Bullet((self.pos.x, self.pos.y), -self.direction, self.player_sprites, self.v_walls, self.h_walls,
-                   self.all_sprites,
-                   self.bullet_sprites, self.collision_sprites)
+            self.use_attack()
+
+    def use_attack(self):
+        self.timers["use attack"].activate()
+        Bullet((self.pos.x, self.pos.y), -self.direction, self.player_sprites, self.collision_sprites,
+               self.all_sprites,
+               self.bullet_sprites)
 
     def update_timers(self):
         for timer in self.timers.values():
@@ -112,9 +116,9 @@ class Player(pygame.sprite.Sprite):
             self.frame = 0
         self.image = self.animations[self.status][int(self.frame)]
         angle = self.direction.angle_to((0, -1))
-        self.image = pygame.transform.rotozoom(self.animations[self.status][int(self.frame)], angle, 0.125)
+        self.image = pygame.transform.rotozoom(self.animations[self.status][int(self.frame)], angle, self.player_size)
         self.rect = self.image.get_rect(center=self.hit_box.center)
-        self.orig_image = pygame.transform.rotozoom(self.animations[self.status][0], angle, 0.125)
+        self.orig_image = pygame.transform.rotozoom(self.animations[self.status][0], angle, self.player_size)
         self.mask = pygame.mask.from_surface(self.orig_image)
         self.collision_turn(dt)
 
@@ -136,9 +140,11 @@ class Player(pygame.sprite.Sprite):
                 if self.old_direction != self.direction:
                     self.direction = self.direction.rotate(dt * 360 * self.speed_angle * -self.direction_rotation)
                     angle = self.direction.angle_to((0, -1))
-                    self.image = pygame.transform.rotozoom(self.animations[self.status][int(self.frame)], angle, 0.125)
+                    self.image = pygame.transform.rotozoom(self.animations[self.status][int(self.frame)], angle,
+                                                           self.player_size)
 
-                    self.orig_image = pygame.transform.rotozoom(self.animations[self.status][0], angle, 0.125)
+                    self.orig_image = pygame.transform.rotozoom(self.animations[self.status][0], angle,
+                                                                self.player_size)
                     self.mask = pygame.mask.from_surface(self.orig_image)
                     self.rect = self.image.get_rect(center=self.hit_box.center)
 

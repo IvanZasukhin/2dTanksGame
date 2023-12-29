@@ -10,7 +10,7 @@ class Level:
 
         self.grid_cells = []
         self.stack = []
-        self.TILE = 200
+        self.TILE = 150
         self.cols, self.rows = SCREEN_WIDTH // self.TILE, SCREEN_HEIGHT // self.TILE
         # спрайты
         self.all_sprites = pygame.sprite.Group()
