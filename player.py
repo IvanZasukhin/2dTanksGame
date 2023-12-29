@@ -64,10 +64,9 @@ class Player(pygame.sprite.Sprite):
         # атака
         if not self.timers["use attack"].active and keys[self.MANAGEMENT["attack"]]:
             self.timers["use attack"].activate()
-            print(self.direction)
             Bullet((self.pos.x, self.pos.y), -self.direction, self.player_sprites, self.v_walls, self.h_walls,
                    self.all_sprites,
-                   self.bullet_sprites)
+                   self.bullet_sprites, self.collision_sprites)
 
     def update_timers(self):
         for timer in self.timers.values():
