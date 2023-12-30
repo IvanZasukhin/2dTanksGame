@@ -51,8 +51,8 @@ class Cell:
 
 
 class Border(pygame.sprite.Sprite):
-    def __init__(self, all_sprites, v_walls, h_walls, collision_sprites, x1, y1, x2, y2):
-        super().__init__(all_sprites, collision_sprites)
+    def __init__(self, all_sprites, walls, v_walls, h_walls, collision_sprites, x1, y1, x2, y2):
+        super().__init__(all_sprites, walls, collision_sprites)
         if x1 == x2:  # вертикальная стенка
             self.add(v_walls)
             self.image = pygame.Surface([5, y2 - y1])
