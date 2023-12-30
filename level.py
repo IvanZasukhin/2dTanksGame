@@ -1,5 +1,6 @@
 from map import *
 from player import Player
+from settings import *
 from support import remove_walls
 
 
@@ -18,8 +19,6 @@ class Level:
         self.walls = pygame.sprite.Group()
         self.collision_sprites = pygame.sprite.Group()
         self.bullet_sprites = pygame.sprite.Group()
-        self.v_walls = pygame.sprite.Group()
-        self.h_walls = pygame.sprite.Group()
 
         self.generation()
         self.setup()
@@ -50,28 +49,26 @@ class Level:
 
         # Создание спрайта стен
         for cell in self.grid_cells:
-            x = cell.x * self.TILE - 2
-            y = cell.y * self.TILE - 2
+            x = cell.x * self.TILE
+            y = cell.y * self.TILE
             if cell.walls['top']:
-                Border(self.all_sprites, self.v_walls, self.h_walls, self.collision_sprites, x, y, x + self.TILE + 2, y)
+                Border(self.all_sprites, self.collision_sprites, self.walls, x, y, x + self.TILE, y)
             if cell.walls['right']:
-                Border(self.all_sprites, self.v_walls, self.h_walls, self.collision_sprites, x + self.TILE, y,
-                       x + self.TILE, y + self.TILE + 2)
+                Border(self.all_sprites, self.collision_sprites, self.walls, x + self.TILE, y,
+                       x + self.TILE, y + self.TILE)
             if cell.walls['bottom']:
-                Border(self.all_sprites, self.v_walls, self.h_walls, self.collision_sprites, x, y + self.TILE,
-                       x + self.TILE + 2, y + self.TILE)
+                Border(self.all_sprites, self.collision_sprites, self.walls, x, y + self.TILE,
+                       x + self.TILE, y + self.TILE)
             if cell.walls['left']:
-                Border(self.all_sprites, self.v_walls, self.h_walls, self.collision_sprites, x, y, x, y + self.TILE + 2)
+                Border(self.all_sprites, self.collision_sprites, self.walls, x, y, x, y + self.TILE)
 
     def setup(self):
-        Player((300, 300), 1, (self.all_sprites, self.player_sprites), self.collision_sprites, self.bullet_sprites,
-               self.v_walls, self.h_walls)
-        Player((400, 300), 2, (self.all_sprites, self.player_sprites), self.collision_sprites, self.bullet_sprites,
-               self.v_walls, self.h_walls)
+        Player((300, 300), 1, self.all_sprites, self.player_sprites, self.collision_sprites, self.bullet_sprites,
+               self.walls)
+        Player((400, 300), 2, self.all_sprites, self.player_sprites, self.collision_sprites, self.bullet_sprites,
+               self.walls)
 
     def run(self, dt):
         self.display_surface.fill(WHITE)
-        for cell in self.grid_cells:
-            cell.draw()
         self.all_sprites.draw(self.display_surface)
         self.all_sprites.update(dt)

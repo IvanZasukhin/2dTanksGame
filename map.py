@@ -1,6 +1,6 @@
 import pygame
-from settings import *
 from random import choice
+from settings import *
 
 
 class Cell:
@@ -43,17 +43,20 @@ class Cell:
 
 
 class Border(pygame.sprite.Sprite):
-    def __init__(self, all_sprites, v_walls, h_walls, collision_sprites, x1, y1, x2, y2):
-        super().__init__(all_sprites, collision_sprites)
+    def __init__(self, all_sprites, collision_sprites, walls, x1, y1, x2, y2):
+        super().__init__(all_sprites, collision_sprites, walls)
         if x1 == x2:  # вертикальная стенка
-            self.add(v_walls)
-            self.image = pygame.Surface([5, y2 - y1])
-            self.rect = pygame.Rect(x1, y1, 5, y2 - y1)
+            self.image = pygame.Surface([5, y2 - y1], pygame.SRCALPHA)
+            pygame.draw.rect(self.image, BLACK, (0, 0, 10, y2 - y1))
+            self.rect = pygame.Rect(x1, y1, x2, y2)
         else:  # горизонтальная стенка
-            self.add(h_walls)
-            self.image = pygame.Surface([x2 - x1, 5])
-            self.rect = pygame.Rect(x1, y1, x2 - x1, 5)
+            self.image = pygame.Surface([x2 - x1, 5], pygame.SRCALPHA)
+            pygame.draw.rect(self.image, BLACK, (0, 0, x2 - x1, 5))
+            self.rect = pygame.Rect(x1, y1, x2, 5)
+
+        self.direction = pygame.Vector2(y2 - y1, x2 - x1).normalize()
         self.mask = pygame.mask.from_surface(self.image)
+        self.hit_box = self.rect.copy()
 
     def is_collided_with(self, sprite):
         return pygame.sprite.collide_mask(self, sprite)

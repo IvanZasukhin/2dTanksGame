@@ -7,14 +7,13 @@ from bullet import Bullet
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, player_number, group, collision_sprites, bullet_sprites, v_walls, h_walls):
-        super().__init__(group, collision_sprites)
-        self.all_sprites = group[0]
-        self.player_sprites = group[1]
+    def __init__(self, pos, player_number, all_sprites, player_sprites, collision_sprites, bullet_sprites, walls):
+        super().__init__(all_sprites, player_sprites, collision_sprites)
+        self.all_sprites = all_sprites
+        self.player_sprites = player_sprites
+        self.walls = walls
         self.collision_sprites = collision_sprites
         self.bullet_sprites = bullet_sprites
-        self.v_walls = v_walls
-        self.h_walls = h_walls
         self.MANAGEMENT = MANAGEMENT[player_number]
         # Генерация изображения
 
@@ -28,8 +27,9 @@ class Player(pygame.sprite.Sprite):
         self.image = self.animations[self.status][self.frame]
         self.orig_image = self.animations[self.status][self.frame]
         self.player_size = 0.125
+        self.image = pygame.transform.rotozoom(self.image, 0, self.player_size)
         self.rect = self.image.get_rect(center=pos)
-        self.hit_box = self.rect.copy().inflate((10, 10))
+        self.hit_box = self.rect.copy()
         self.mask = pygame.mask.from_surface(self.image)
         # Движение
         self.old_direction = 0
@@ -37,7 +37,7 @@ class Player(pygame.sprite.Sprite):
         self.direction_rotation = 0
         self.pos = pygame.Vector2(pos)
         self.direction = pygame.Vector2((0, -1))
-        self.speed = 2
+        self.speed = 200
         self.speed_angle = 0.5
         # Таймер
         self.timers = {
@@ -91,13 +91,13 @@ class Player(pygame.sprite.Sprite):
             self.status = "forward"
             movement_v.normalize_ip()
             # X
-            self.pos.x += movement_v.x * dt * 100 * self.speed
-            self.hit_box.centerx = round(self.pos.x)
+            self.pos.x += movement_v.x * dt * self.speed
+            self.hit_box.centerx = self.pos.x
             self.rect.centerx = self.hit_box.centerx
 
             # Y
-            self.pos.y += movement_v.y * dt * 100 * self.speed
-            self.hit_box.centery = round(self.pos.y)
+            self.pos.y += movement_v.y * dt * self.speed
+            self.hit_box.centery = self.pos.y
             self.rect.centery = self.hit_box.centery
         self.collision(dt)
 
@@ -126,11 +126,11 @@ class Player(pygame.sprite.Sprite):
         for sprite in self.collision_sprites.sprites():
             if self is not sprite and sprite.is_collided_with(self):
                 movement_v = self.direction * self.movement
-                self.pos.x -= movement_v.x * dt * 100 * self.speed
+                self.pos.x -= movement_v.x * dt * self.speed
                 self.hit_box.centerx = round(self.pos.x)
                 self.rect.centerx = self.hit_box.centerx
 
-                self.pos.y -= movement_v.y * dt * 100 * self.speed
+                self.pos.y -= movement_v.y * dt * self.speed
                 self.hit_box.centery = round(self.pos.y)
                 self.rect.centery = self.hit_box.centery
 
@@ -150,3 +150,7 @@ class Player(pygame.sprite.Sprite):
 
     def is_collided_with(self, sprite):
         return pygame.sprite.collide_mask(self, sprite)
+
+
+def is_collided_with(self, sprite):
+    return pygame.sprite.collide_mask(self, sprite)
