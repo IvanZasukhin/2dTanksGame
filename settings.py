@@ -6,7 +6,8 @@ ORANGE = Color('orange')
 RED = Color('red')
 BLUE = Color('blue')
 WHITE = Color('white')
-SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = (1002, 1002)
+GRAY = Color('gray')
+SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = (802, 602)
 MANAGEMENT = {
     1: {"left": K_LEFT, "right": K_RIGHT, "up": K_UP,
         "down": K_DOWN, "attack": K_SPACE},

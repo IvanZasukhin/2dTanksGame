@@ -16,14 +16,6 @@ class Cell:
         x, y = self.x * self.TILE, self.y * self.TILE
         if self.visited:
             pygame.draw.rect(self.screen, pygame.Color("gray"), (x, y, self.TILE, self.TILE))
-        if self.walls['top']:
-            pygame.draw.line(self.screen, ORANGE, (x, y), (x + self.TILE, y), 5)
-        if self.walls['right']:
-            pygame.draw.line(self.screen, ORANGE, (x + self.TILE, y), (x + self.TILE, y + self.TILE), 5)
-        if self.walls['bottom']:
-            pygame.draw.line(self.screen, ORANGE, (x, y + self.TILE), (x + self.TILE, y + self.TILE), 5)
-        if self.walls['left']:
-            pygame.draw.line(self.screen, ORANGE, (x, y), (x, y + self.TILE), 5)
 
     def check_cell(self, grid_cells, x, y):
         if x < 0 or x > self.cols - 1 or y < 0 or y > self.rows - 1:
