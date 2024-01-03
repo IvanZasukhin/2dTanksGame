@@ -53,27 +53,25 @@ class Level:
             x = cell.x * self.tile
             y = cell.y * self.tile
             if cell.walls['top']:
-                Border(self.all_sprites, self.walls, self.collision_sprites, x, y,
-                       x + self.tile, y)
+                Border(x, y, x + self.tile, y, self.all_sprites, self.walls, self.collision_sprites)
             if cell.walls['right']:
-                Border(self.all_sprites, self.walls, self.collision_sprites, x + self.tile,
-                       y, x + self.tile, y + self.tile)
+                Border(x + self.tile, y, x + self.tile, y + self.tile, self.all_sprites, self.walls,
+                       self.collision_sprites)
             if cell.walls['bottom']:
-                Border(self.all_sprites, self.walls, self.collision_sprites, x,
-                       y + self.tile, x + self.tile, y + self.tile)
+                Border(x, y + self.tile, x + self.tile, y + self.tile, self.all_sprites, self.walls,
+                       self.collision_sprites)
             if cell.walls['left']:
-                Border(self.all_sprites, self.walls, self.collision_sprites, x, y, x,
-                       y + self.tile)
+                Border(x, y, x, y + self.tile, self.all_sprites, self.walls, self.collision_sprites)
 
     def setup(self):
         flag = True
         while flag:
             pos1, pos2 = self.set_position()
             print(pos1, pos2)
-            Player(pos1, 1, (self.all_sprites, self.player_sprites), self.collision_sprites, self.bullet_sprites,
-                   self.v_walls, self.h_walls)
-            Player(pos2, 2, (self.all_sprites, self.player_sprites), self.collision_sprites, self.bullet_sprites,
-                   self.v_walls, self.h_walls)
+            Player(pos1, 1, self.all_sprites, self.player_sprites, self.collision_sprites, self.bullet_sprites,
+                   self.walls)
+            Player(pos2, 2, self.all_sprites, self.player_sprites, self.collision_sprites, self.bullet_sprites,
+                   self.walls)
             pygame.sprite.groupcollide(self.player_sprites, self.walls, True, False)
             if len(self.player_sprites) == 2:
                 flag = False
