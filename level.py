@@ -2,6 +2,7 @@ from map import *
 from player import Player
 from settings import *
 from support import remove_walls
+from random import randint
 
 
 class Level:
@@ -11,8 +12,8 @@ class Level:
 
         self.grid_cells = []
         self.stack = []
-        self.TILE = 150
-        self.cols, self.rows = SCREEN_WIDTH // self.TILE, SCREEN_HEIGHT // self.TILE
+        self.tile = 200
+        self.cols, self.rows = SCREEN_WIDTH // self.tile, SCREEN_HEIGHT // self.tile
         # спрайты
         self.all_sprites = pygame.sprite.Group()
         self.player_sprites = pygame.sprite.Group()
@@ -43,31 +44,55 @@ class Level:
             next_cell = current_cell.check_neighbors(self.grid_cells)
 
         # Уменьшение кол-ва стенок
-        for cell in self.grid_cells:
-            next_cell = check_neighbors_second(cell, self.grid_cells)
-            remove_walls(cell, next_cell)
+        # for cell in self.grid_cells:
+        #     next_cell = check_neighbors_second(cell, self.grid_cells)
+        #     remove_walls(cell, next_cell)
 
         # Создание спрайта стен
         for cell in self.grid_cells:
-            x = cell.x
-            y = cell.y
+            x = cell.x * self.tile
+            y = cell.y * self.tile
             if cell.walls['top']:
-                Border(self.all_sprites, self.collision_sprites, x, y, x + TILE, y)
+                Border(self.all_sprites, self.walls, self.collision_sprites, x, y,
+                       x + self.tile, y)
             if cell.walls['right']:
-                Border(self.all_sprites, self.collision_sprites, x + TILE, y, x + TILE, y + TILE)
+                Border(self.all_sprites, self.walls, self.collision_sprites, x + self.tile,
+                       y, x + self.tile, y + self.tile)
             if cell.walls['bottom']:
-                Border(self.all_sprites, self.collision_sprites, x, y + TILE, x + TILE, y + TILE)
+                Border(self.all_sprites, self.walls, self.collision_sprites, x,
+                       y + self.tile, x + self.tile, y + self.tile)
             if cell.walls['left']:
-                Border(self.all_sprites, self.collision_sprites, x, y, x, y + TILE)
+                Border(self.all_sprites, self.walls, self.collision_sprites, x, y, x,
+                       y + self.tile)
 
     def setup(self):
-        for count_player in range(1, len(MANAGEMENT) + 1):
-            Player((300, 300 + count_player * 100), count_player, self.all_sprites, self.player_sprites,
-                   self.collision_sprites,
-                   self.bullet_sprites,
-                   self.walls)
+        flag = True
+        while flag:
+            pos1, pos2 = self.set_position()
+            print(pos1, pos2)
+            Player(pos1, 1, (self.all_sprites, self.player_sprites), self.collision_sprites, self.bullet_sprites,
+                   self.v_walls, self.h_walls)
+            Player(pos2, 2, (self.all_sprites, self.player_sprites), self.collision_sprites, self.bullet_sprites,
+                   self.v_walls, self.h_walls)
+            pygame.sprite.groupcollide(self.player_sprites, self.walls, True, False)
+            if len(self.player_sprites) == 2:
+                flag = False
+            else:
+                for player in self.player_sprites:
+                    player.kill()
+
+    def set_position(self):
+        width = SCREEN_WIDTH // self.tile * self.tile
+        height = SCREEN_HEIGHT // self.tile * self.tile
+        x1 = randint(50, width // 2 - 25)
+        y1 = randint(50, height - 50)
+        x2 = randint(width // 2 + 25, width - 50)
+        y2 = randint(50, height - 50)
+        return (x1, y1), (x2, y2)
 
     def run(self, dt):
         self.display_surface.fill(WHITE)
+        for cell in self.grid_cells:
+            cell.draw()
         self.all_sprites.draw(self.display_surface)
         self.all_sprites.update(dt)
