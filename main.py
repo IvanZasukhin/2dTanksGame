@@ -22,6 +22,7 @@ class Game:
             dt = self.clock.tick(FPS) / 1000
             self.level.run(dt)
             pygame.display.update()
+            pygame.display.set_caption(str(self.clock.get_fps()))  # FPS
 
 
 if __name__ == '__main__':

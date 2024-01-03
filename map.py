@@ -4,30 +4,37 @@ from settings import *
 
 
 class Cell:
-    def __init__(self, screen, x, y, tile, cols, rows):
-        self.screen = screen
+    def __init__(self, x, y):
         self.x, self.y = x, y
         self.walls = {'top': True, 'right': True, 'bottom': True, 'left': True}
         self.visited = False
-        self.TILE = tile
-        self.cols, self.rows = cols, rows
 
     def draw(self):
-        x, y = self.x * self.TILE, self.y * self.TILE
+        x, y = self.x * TILE, self.y * TILE
         if self.visited:
-            pygame.draw.rect(self.screen, pygame.Color("gray"), (x, y, self.TILE, self.TILE))
+            pygame.draw.rect(screen, BLACK, (x, y, TILE, TILE))
 
-    def check_cell(self, grid_cells, x, y):
-        if x < 0 or x > self.cols - 1 or y < 0 or y > self.rows - 1:
+        if self.walls['top']:
+            pygame.draw.line(screen, ORANGE, (x, y), (x + TILE, y), 3)
+        if self.walls['right']:
+            pygame.draw.line(screen, ORANGE, (x + TILE, y), (x + TILE, y + TILE), 3)
+        if self.walls['bottom']:
+            pygame.draw.line(screen, ORANGE, (x + TILE, y + TILE), (x, y + TILE), 3)
+        if self.walls['left']:
+            pygame.draw.line(screen, ORANGE, (x, y + TILE), (x, y), 3)
+
+    def check_cell(self, x, y):
+        find_index = lambda x, y: x + y * cols
+        if x < 0 or x > cols - 1 or y < 0 or y > rows - 1:
             return False
-        return grid_cells[x + y * self.cols]
+        return grid_cells[find_index(x, y)]
 
-    def check_neighbors(self, grid_cells):
+    def check_neighbors(self):
         neighbors = []
-        top = self.check_cell(grid_cells, self.x, self.y - 1)
-        right = self.check_cell(grid_cells, self.x + 1, self.y)
-        bottom = self.check_cell(grid_cells, self.x, self.y + 1)
-        left = self.check_cell(grid_cells, self.x - 1, self.y)
+        top = self.check_cell(self.x, self.y - 1)
+        right = self.check_cell(self.x + 1, self.y)
+        bottom = self.check_cell(self.x, self.y + 1)
+        left = self.check_cell(self.x - 1, self.y)
         if top and not top.visited:
             neighbors.append(top)
         if right and not right.visited:
@@ -43,31 +50,25 @@ class Cell:
 
 
 class Border(pygame.sprite.Sprite):
-    def __init__(self, all_sprites, collision_sprites, walls, x1, y1, x2, y2):
-        super().__init__(all_sprites, collision_sprites, walls)
+    def __init__(self, x1, y1, x2, y2):
+        super().__init__(all_sprites)
         if x1 == x2:  # вертикальная стенка
-            self.image = pygame.Surface([5, y2 - y1], pygame.SRCALPHA)
-            pygame.draw.rect(self.image, BLACK, (0, 0, 10, y2 - y1))
-            self.rect = pygame.Rect(x1, y1, x2, y2)
+            self.add(v_walls)
+            self.image = pygame.Surface([3, y2 - y1])
+            self.rect = pygame.Rect(x1, y1, 3, y2 - y1)
         else:  # горизонтальная стенка
-            self.image = pygame.Surface([x2 - x1, 5], pygame.SRCALPHA)
-            pygame.draw.rect(self.image, BLACK, (0, 0, x2 - x1, 5))
-            self.rect = pygame.Rect(x1, y1, x2, 5)
-
-        self.direction = pygame.Vector2(y2 - y1, x2 - x1).normalize()
-        self.mask = pygame.mask.from_surface(self.image)
-        self.hit_box = self.rect.copy()
-
-    def is_collided_with(self, sprite):
-        return pygame.sprite.collide_mask(self, sprite)
+            self.add(h_walls)
+            self.image = pygame.Surface([x2 - x1, 3])
+            self.rect = pygame.Rect(x1, y1, x2 - x1, 3)
 
 
-def check_neighbors_second(cell, grid_cells):
+def check_neighbors_second(cell):
+    self = cell
     neighbors = []
-    top = cell.check_cell(grid_cells, cell.x, cell.y - 1)
-    right = cell.check_cell(grid_cells, cell.x + 1, cell.y)
-    bottom = cell.check_cell(grid_cells, cell.x, cell.y + 1)
-    left = cell.check_cell(grid_cells, cell.x - 1, cell.y)
+    top = self.check_cell(self.x, self.y - 1)
+    right = self.check_cell(self.x + 1, self.y)
+    bottom = self.check_cell(self.x, self.y + 1)
+    left = self.check_cell(self.x - 1, self.y)
     if top:
         neighbors.append(top)
     if right:

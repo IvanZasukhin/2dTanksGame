@@ -27,7 +27,7 @@ class Level:
         # Создание клеток
         for y in range(self.rows):
             for x in range(self.cols):
-                self.grid_cells.append(Cell(self.display_surface, x, y, self.TILE, self.cols, self.rows))
+                self.grid_cells.append(Cell(self.display_surface, x, y, self.tile, self.cols, self.rows))
 
         # Генерация стенок лабиринта
         current_cell = self.grid_cells[0]
@@ -49,24 +49,23 @@ class Level:
 
         # Создание спрайта стен
         for cell in self.grid_cells:
-            x = cell.x * self.TILE
-            y = cell.y * self.TILE
+            x = cell.x
+            y = cell.y
             if cell.walls['top']:
-                Border(self.all_sprites, self.collision_sprites, self.walls, x, y, x + self.TILE, y)
+                Border(self.all_sprites, self.collision_sprites, x, y, x + TILE, y)
             if cell.walls['right']:
-                Border(self.all_sprites, self.collision_sprites, self.walls, x + self.TILE, y,
-                       x + self.TILE, y + self.TILE)
+                Border(self.all_sprites, self.collision_sprites, x + TILE, y, x + TILE, y + TILE)
             if cell.walls['bottom']:
-                Border(self.all_sprites, self.collision_sprites, self.walls, x, y + self.TILE,
-                       x + self.TILE, y + self.TILE)
+                Border(self.all_sprites, self.collision_sprites, x, y + TILE, x + TILE, y + TILE)
             if cell.walls['left']:
-                Border(self.all_sprites, self.collision_sprites, self.walls, x, y, x, y + self.TILE)
+                Border(self.all_sprites, self.collision_sprites, x, y, x, y + TILE)
 
     def setup(self):
-        Player((300, 300), 1, self.all_sprites, self.player_sprites, self.collision_sprites, self.bullet_sprites,
-               self.walls)
-        Player((400, 300), 2, self.all_sprites, self.player_sprites, self.collision_sprites, self.bullet_sprites,
-               self.walls)
+        for count_player in range(1, len(MANAGEMENT) + 1):
+            Player((300, 300 + count_player * 100), count_player, self.all_sprites, self.player_sprites,
+                   self.collision_sprites,
+                   self.bullet_sprites,
+                   self.walls)
 
     def run(self, dt):
         self.display_surface.fill(WHITE)
