@@ -12,7 +12,7 @@ class Bullet(pygame.sprite.Sprite):
         self.direction = direction
         self.player_owned = player_owned
         self.radius = 10
-        self.speed = self.player_owned.speed * 2
+        self.speed = self.player_owned.speed
         self.lifetime = 10000
         self.image = pygame.Surface((2 * self.radius, 2 * self.radius),
                                     pygame.SRCALPHA)

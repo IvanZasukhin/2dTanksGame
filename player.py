@@ -43,7 +43,7 @@ class Player(pygame.sprite.Sprite):
         self.speed_angle = 0.5
         # Таймер
         self.timers = {
-            "use attack": Timer(50)
+            "use attack": Timer(250)
         }
 
     def import_animation(self):

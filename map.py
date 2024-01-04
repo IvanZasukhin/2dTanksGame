@@ -12,11 +12,6 @@ class Cell:
         self.TILE = tile
         self.cols, self.rows = cols, rows
 
-    def draw(self):
-        x, y = self.x * self.TILE, self.y * self.TILE
-        if self.visited:
-            pygame.draw.rect(self.screen, pygame.Color("gray"), (x, y, self.TILE, self.TILE))
-
     def check_cell(self, grid_cells, x, y):
         if x < 0 or x > self.cols - 1 or y < 0 or y > self.rows - 1:
             return False
@@ -55,16 +50,17 @@ class Border(pygame.sprite.Sprite):
         elif y1 == y2:  # горизонтальная стенка
             self.image = pygame.Surface([x2 - x1, thickness], pygame.SRCALPHA)
             pygame.draw.rect(self.image, BLACK, (0, 0, x2 - x1, thickness))
-
         else:
             print(x1, y1, x2, y2)
             print("ERROR")
+
         self.rect = self.image.get_rect(topleft=(x1, y1))
         self.direction = -pygame.Vector2(x2 - x1, y2 - y1).rotate(90).normalize()
         self.mask = pygame.mask.from_surface(self.image)
 
     def is_collided_with(self, sprite):
         return pygame.sprite.collide_mask(self, sprite)
+
 
 def check_neighbors_second(cell, grid_cells):
     neighbors = []
