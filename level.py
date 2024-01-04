@@ -67,7 +67,6 @@ class Level:
         flag = True
         while flag:
             pos1, pos2 = self.set_position()
-            print(pos1, pos2)
             Player(pos1, 1, self.all_sprites, self.player_sprites, self.collision_sprites, self.bullet_sprites,
                    self.walls)
             Player(pos2, 2, self.all_sprites, self.player_sprites, self.collision_sprites, self.bullet_sprites,

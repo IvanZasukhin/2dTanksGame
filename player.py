@@ -36,7 +36,7 @@ class Player(pygame.sprite.Sprite):
         self.movement = 0
         self.direction_rotation = 0
         self.pos = pygame.Vector2(pos)
-        self.direction = pygame.Vector2((0, -1))
+        self.direction = pygame.Vector2((0, 1))
         self.speed = 200
         self.speed_angle = 0.5
         # Таймер
@@ -55,9 +55,9 @@ class Player(pygame.sprite.Sprite):
         self.movement = 0
         self.direction_rotation = 0
         if keys[self.MANAGEMENT["up"]]:
-            self.movement = -1
-        elif keys[self.MANAGEMENT["down"]]:
             self.movement = 1
+        elif keys[self.MANAGEMENT["down"]]:
+            self.movement = -1
         if keys[self.MANAGEMENT["left"]]:
             self.direction_rotation = -1
         elif keys[self.MANAGEMENT["right"]]:
@@ -85,20 +85,15 @@ class Player(pygame.sprite.Sprite):
     def move(self, dt):
         self.status = "stop"
         # Движение
-        movement_v = self.direction * self.movement
+        movement_v = -self.direction * self.movement
         if movement_v.length() > 0:
             self.speed_animation = 15
             self.status = "forward"
             movement_v.normalize_ip()
-            # X
-            self.pos.x += movement_v.x * dt * self.speed
-            self.hit_box.centerx = self.pos.x
-            self.rect.centerx = self.hit_box.centerx
-
-            # Y
-            self.pos.y += movement_v.y * dt * self.speed
-            self.hit_box.centery = self.pos.y
-            self.rect.centery = self.hit_box.centery
+            self.pos += movement_v * dt * self.speed
+            self.hit_box.centerx = round(self.pos.x)
+            self.hit_box.centery = round(self.pos.y)
+            self.rect.center = self.hit_box.center
         self.collision(dt)
 
         # поворот танка
@@ -125,14 +120,15 @@ class Player(pygame.sprite.Sprite):
     def collision(self, dt):
         for sprite in self.collision_sprites.sprites():
             if self is not sprite and sprite.is_collided_with(self):
-                movement_v = self.direction * self.movement
-                self.pos.x -= movement_v.x * dt * self.speed
-                self.hit_box.centerx = round(self.pos.x)
-                self.rect.centerx = self.hit_box.centerx
-
-                self.pos.y -= movement_v.y * dt * self.speed
-                self.hit_box.centery = round(self.pos.y)
-                self.rect.centery = self.hit_box.centery
+                movement_v = -self.direction * self.movement
+                self.movement_collision(dt, movement_v)
+                # print(self.direction.angle_to(sprite.direction) % 180)
+                # self.direction_rotation = 0
+                # if 90 < self.direction.angle_to(sprite.direction) < 180:
+                #     self.direction_rotation = 1
+                # elif 0 < self.direction.angle_to(sprite.direction) < 90:
+                #     self.direction_rotation = 1
+                # self.direction = self.direction.rotate(dt * 360 * (self.speed_angle / 2) * self.direction_rotation)
 
     def collision_turn(self, dt):
         for sprite in self.collision_sprites.sprites():
@@ -150,6 +146,12 @@ class Player(pygame.sprite.Sprite):
 
     def is_collided_with(self, sprite):
         return pygame.sprite.collide_mask(self, sprite)
+
+    def movement_collision(self, dt, movement_v):
+        self.pos -= movement_v * dt * self.speed
+        self.hit_box.centerx = round(self.pos.x)
+        self.hit_box.centery = round(self.pos.y)
+        self.rect.center = self.hit_box.center
 
 
 def is_collided_with(self, sprite):

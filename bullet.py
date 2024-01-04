@@ -12,6 +12,7 @@ class Bullet(pygame.sprite.Sprite):
         self.direction = direction
         self.radius = 10
         self.speed = 300
+        self.lifetime = 10000
         self.image = pygame.Surface((2 * self.radius, 2 * self.radius),
                                     pygame.SRCALPHA)
         pygame.draw.circle(self.image, BLACK,
@@ -19,8 +20,9 @@ class Bullet(pygame.sprite.Sprite):
         direction.scale_to_length(40 + self.radius)
         self.pos = pygame.Vector2(pos[0] + direction.x, pos[1] + direction.y)
         self.rect = self.image.get_rect(center=self.pos)
+
         self.timers = {
-            "time life": Timer(10000)
+            "time life": Timer(self.lifetime)
         }
         self.timers["time life"].activate()
 
@@ -46,25 +48,15 @@ class Bullet(pygame.sprite.Sprite):
         self.direction = self.direction.normalize()
         self.pos += self.direction * dt * self.speed
         self.rect.center = self.pos
-
         for sprite in self.collision_sprites.sprites():
             if self is not sprite and sprite.is_collided_with(self):
-                dx = self.pos.x - sprite.rect.centerx
-                dy = self.pos.y - sprite.rect.centery
-                if abs(dx) > abs(dy):
-                    self.pos.x = sprite.rect.left - self.radius if dx < 0 else sprite.rect.right + self.radius
-                    if (dx < 0 < self.direction[0]) or (dx > 0 > self.direction[0]):
-                        self.direction.reflect_ip(pygame.Vector2(1, 0))
-                        self.direction = self.direction.normalize()
-                        print(self.direction)
+                if self.direction.y == sprite.direction.y == 0 or self.direction.x == sprite.direction.x == 0:
+                    self.direction = -sprite.direction
                 else:
-                    self.pos.y = sprite.rect.top - self.radius if dy < 0 else sprite.rect.bottom + self.radius
-                    if (dy < 0 < self.direction[1]) or (dy > 0 > self.direction[1]):
-                        self.direction.reflect_ip(pygame.Vector2(0, 1))
-                        self.direction = self.direction.normalize()
-                self.rect.center = self.pos
+                    global e
+                    print(e, sprite.direction)
+                    e += 1
+                    self.direction.reflect_ip(sprite.direction)
+                break
 
-
-
-    def reflect(self, nv):
-        self.direction = self.direction.reflect(nv)
+e = 0
