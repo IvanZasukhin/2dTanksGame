@@ -5,19 +5,20 @@ from timer import Timer
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, pos, direction, player_sprites, collision_sprites, *groups):
+    def __init__(self, pos, direction, player_owned, player_sprites, collision_sprites, *groups):
         super().__init__(*groups)
         self.collision_sprites = collision_sprites
         self.player_sprites = player_sprites
         self.direction = direction
+        self.player_owned = player_owned
         self.radius = 10
-        self.speed = 300
+        self.speed = self.player_owned.speed * 2
         self.lifetime = 10000
         self.image = pygame.Surface((2 * self.radius, 2 * self.radius),
                                     pygame.SRCALPHA)
         pygame.draw.circle(self.image, BLACK,
                            (self.radius, self.radius), self.radius)
-        direction.scale_to_length(40 + self.radius)
+        direction.scale_to_length(32 + self.radius + self.speed / 50)
         self.pos = pygame.Vector2(pos[0] + direction.x, pos[1] + direction.y)
         self.rect = self.image.get_rect(center=self.pos)
 
@@ -29,7 +30,7 @@ class Bullet(pygame.sprite.Sprite):
     def update(self, dt):
         self.update_timers()
         self.check_life_bullet()
-        # self.check_collision()
+        self.check_collision()
         self.move(dt)
 
     def update_timers(self):
@@ -41,22 +42,18 @@ class Bullet(pygame.sprite.Sprite):
             self.kill()
 
     def check_collision(self):
-        if pygame.sprite.spritecollide(self, self.player_sprites, True):
-            self.timers["time life"].deactivate()
+        for sprite in self.collision_sprites.sprites():
+            if self is not sprite and sprite.is_collided_with(self):
+                if sprite in self.player_sprites:
+                    self.timers["time life"].deactivate()
+                    sprite.kill()
+                if self.direction.y == sprite.direction.y == 0 or self.direction.x == sprite.direction.x == 0:
+                    self.direction = -sprite.direction
+                else:
+                    self.direction.reflect_ip(sprite.direction)
+                break
 
     def move(self, dt):
         self.direction = self.direction.normalize()
         self.pos += self.direction * dt * self.speed
         self.rect.center = self.pos
-        for sprite in self.collision_sprites.sprites():
-            if self is not sprite and sprite.is_collided_with(self):
-                if self.direction.y == sprite.direction.y == 0 or self.direction.x == sprite.direction.x == 0:
-                    self.direction = -sprite.direction
-                else:
-                    global e
-                    print(e, sprite.direction)
-                    e += 1
-                    self.direction.reflect_ip(sprite.direction)
-                break
-
-e = 0

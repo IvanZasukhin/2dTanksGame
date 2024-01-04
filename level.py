@@ -19,7 +19,6 @@ class Level:
         self.player_sprites = pygame.sprite.Group()
         self.walls = pygame.sprite.Group()
         self.collision_sprites = pygame.sprite.Group()
-        self.bullet_sprites = pygame.sprite.Group()
 
         self.generation()
         self.setup()
@@ -67,9 +66,9 @@ class Level:
         flag = True
         while flag:
             pos1, pos2 = self.set_position()
-            Player(pos1, 1, self.all_sprites, self.player_sprites, self.collision_sprites, self.bullet_sprites,
+            Player(pos1, 1, self.all_sprites, self.player_sprites, self.collision_sprites,
                    self.walls)
-            Player(pos2, 2, self.all_sprites, self.player_sprites, self.collision_sprites, self.bullet_sprites,
+            Player(pos2, 2, self.all_sprites, self.player_sprites, self.collision_sprites,
                    self.walls)
             pygame.sprite.groupcollide(self.player_sprites, self.walls, True, False)
             if len(self.player_sprites) == 2:

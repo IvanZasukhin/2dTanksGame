@@ -7,14 +7,16 @@ from bullet import Bullet
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, player_number, all_sprites, player_sprites, collision_sprites, bullet_sprites, walls):
+    def __init__(self, pos, player_number, all_sprites, player_sprites, collision_sprites, walls):
         super().__init__(all_sprites, player_sprites, collision_sprites)
         self.all_sprites = all_sprites
         self.player_sprites = player_sprites
         self.walls = walls
         self.collision_sprites = collision_sprites
-        self.bullet_sprites = bullet_sprites
-        self.MANAGEMENT = MANAGEMENT[player_number]
+        self.bullet_sprites = pygame.sprite.Group()
+        self.player_number = player_number
+        self.MANAGEMENT = MANAGEMENT[self.player_number]
+        self.bullet_group = []
         # Генерация изображения
 
         # настройки анимации
@@ -27,7 +29,7 @@ class Player(pygame.sprite.Sprite):
         self.image = self.animations[self.status][self.frame]
         self.orig_image = self.animations[self.status][self.frame]
         self.player_size = 0.125
-        self.image = pygame.transform.rotozoom(self.image, 0, self.player_size)
+        self.image = pygame.transform.rotozoom(self.image, 180, self.player_size)
         self.rect = self.image.get_rect(center=pos)
         self.hit_box = self.rect.copy()
         self.mask = pygame.mask.from_surface(self.image)
@@ -41,12 +43,12 @@ class Player(pygame.sprite.Sprite):
         self.speed_angle = 0.5
         # Таймер
         self.timers = {
-            "use attack": Timer(500)
+            "use attack": Timer(50)
         }
 
     def import_animation(self):
         for animation in self.animations.keys():
-            full_path = "data/animations/standard/" + animation
+            full_path = f"data/animations/{self.player_number}/standard/{animation}"
             self.animations[animation] = import_image(full_path)
 
     def input(self):
@@ -68,9 +70,10 @@ class Player(pygame.sprite.Sprite):
 
     def use_attack(self):
         self.timers["use attack"].activate()
-        Bullet((self.pos.x, self.pos.y), -self.direction, self.player_sprites, self.collision_sprites,
-               self.all_sprites,
-               self.bullet_sprites)
+        if len(self.bullet_sprites) != 10:
+            Bullet((self.pos.x, self.pos.y), -self.direction, self, self.player_sprites, self.collision_sprites,
+                   self.all_sprites,
+                   self.bullet_sprites)
 
     def update_timers(self):
         for timer in self.timers.values():
