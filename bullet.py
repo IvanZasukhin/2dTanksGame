@@ -12,13 +12,13 @@ class Bullet(pygame.sprite.Sprite):
         self.direction = direction
         self.player_owned = player_owned
         self.radius = 10
-        self.speed = self.player_owned.speed * 2
+        self.speed = self.player_owned.speed + self.radius * 2
         self.lifetime = 10000
         self.image = pygame.Surface((2 * self.radius, 2 * self.radius),
                                     pygame.SRCALPHA)
         pygame.draw.circle(self.image, BLACK,
                            (self.radius, self.radius), self.radius)
-        direction.scale_to_length(32 + self.radius + self.speed / 50)
+        direction.scale_to_length(32 + self.radius + self.speed / 10)
         self.pos = pygame.Vector2(pos[0] + direction.x, pos[1] + direction.y)
         self.rect = self.image.get_rect(center=self.pos)
 
@@ -30,7 +30,7 @@ class Bullet(pygame.sprite.Sprite):
     def update(self, dt):
         self.update_timers()
         self.check_life_bullet()
-        self.check_collision()
+        self.check_collision(dt)
         self.move(dt)
 
     def update_timers(self):
@@ -41,19 +41,23 @@ class Bullet(pygame.sprite.Sprite):
         if not self.timers["time life"].active:
             self.kill()
 
-    def check_collision(self):
+    def check_collision(self, dt):
         for sprite in self.collision_sprites.sprites():
             if self is not sprite and sprite.is_collided_with(self):
                 if sprite in self.player_sprites:
-                    self.timers["time life"].deactivate()
+                    self.kill()
                     sprite.kill()
-                if self.direction.y == sprite.direction.y == 0 or self.direction.x == sprite.direction.x == 0:
-                    self.direction = -sprite.direction
-                else:
+                if self.direction:
                     self.direction.reflect_ip(sprite.direction)
-                break
+                self.move(dt)
+                if sprite.is_collided_with(self):
+                    self.direction.reflect_ip(sprite.direction.rotate(90))
+                    self.move(dt)
 
     def move(self, dt):
-        self.direction = self.direction.normalize()
+        try:
+            self.direction.normalize_ip()
+        except ValueError:
+            pass
         self.pos += self.direction * dt * self.speed
         self.rect.center = self.pos

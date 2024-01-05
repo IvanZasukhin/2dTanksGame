@@ -45,7 +45,7 @@ class Cell:
 class Border(pygame.sprite.Sprite):
     def __init__(self, x1, y1, x2, y2, *groups):
         super().__init__(*groups)
-        thickness = 10
+        thickness = 20
         x1, y1 = x1 - thickness / 2, y1 - thickness / 2
         x2, y2 = x2 - thickness / 2, y2 - thickness / 2
 
