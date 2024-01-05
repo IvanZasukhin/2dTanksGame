@@ -1,12 +1,14 @@
 from pygame import Color, K_LEFT, K_DOWN, K_a, K_s, K_RIGHT, K_SPACE, K_d, K_e, K_w, K_UP
 
-FPS = 60
+FPS = 0
 BLACK = Color('black')
 ORANGE = Color('orange')
 RED = Color('red')
 BLUE = Color('blue')
 WHITE = Color('white')
 GRAY = Color('gray')
+GRAPHICS_QUALITY = 1
+PLAYER_ZOOM = 0.125
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = (900, 975)
 MANAGEMENT = {
     1: {"left": K_a, "right": K_d, "up": K_w,
