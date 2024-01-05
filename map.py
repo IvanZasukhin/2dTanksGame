@@ -50,21 +50,22 @@ class Border(pygame.sprite.Sprite):
         x2, y2 = x2 - thickness / 2, y2 - thickness / 2
 
         if x1 == x2:  # вертикальная стенка
-            self.image = pygame.Surface([thickness, y2 - y1], pygame.SRCALPHA)
-            pygame.draw.rect(self.image, BLACK, (0, 0, thickness, y2 - y1))
+            self.image = pygame.Surface([thickness, y2 - y1 + thickness], pygame.SRCALPHA)
+            pygame.draw.rect(self.image, BLACK, (0, 0, thickness, y2 - y1 + thickness))
         elif y1 == y2:  # горизонтальная стенка
-            self.image = pygame.Surface([x2 - x1, thickness], pygame.SRCALPHA)
-            pygame.draw.rect(self.image, BLACK, (0, 0, x2 - x1, thickness))
-
+            self.image = pygame.Surface([x2 - x1 + thickness, thickness], pygame.SRCALPHA)
+            pygame.draw.rect(self.image, BLACK, (0, 0, x2 - x1 + thickness, thickness))
         else:
             print(x1, y1, x2, y2)
             print("ERROR")
+
         self.rect = self.image.get_rect(topleft=(x1, y1))
         self.direction = -pygame.Vector2(x2 - x1, y2 - y1).rotate(90).normalize()
         self.mask = pygame.mask.from_surface(self.image)
 
     def is_collided_with(self, sprite):
         return pygame.sprite.collide_mask(self, sprite)
+
 
 def check_neighbors_second(cell, grid_cells):
     neighbors = []

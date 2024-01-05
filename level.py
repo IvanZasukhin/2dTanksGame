@@ -9,25 +9,42 @@ class Level:
     def __init__(self, screen):
         # окно
         self.display_surface = screen
-
+        # карта
         self.grid_cells = []
         self.stack = []
-        self.tile = 200
-        self.cols, self.rows = SCREEN_WIDTH // self.tile, SCREEN_HEIGHT // self.tile
+        self.tile = 225
+        self.cols, self.rows = SCREEN_WIDTH // self.tile, (SCREEN_HEIGHT - 75) // self.tile
+        self.width = SCREEN_WIDTH // self.tile * self.tile
+        self.height = (SCREEN_HEIGHT - 75) // self.tile * self.tile
+        # отображение побед
+        self.font_name = pygame.font.match_font('arial')
+        self.blue_wins = 0
+        self.red_wins = 0
+        self.round = 0
         # спрайты
         self.all_sprites = pygame.sprite.Group()
         self.player_sprites = pygame.sprite.Group()
         self.walls = pygame.sprite.Group()
         self.collision_sprites = pygame.sprite.Group()
-
+        # генерация
+        for y in range(self.rows):
+            for x in range(self.cols):
+                self.grid_cells.append(Cell(self.display_surface, x, y, self.tile, self.cols, self.rows))
         self.generation()
         self.setup()
 
     def generation(self):
-        # Создание клеток
-        for y in range(self.rows):
-            for x in range(self.cols):
-                self.grid_cells.append(Cell(self.display_surface, x, y, self.tile, self.cols, self.rows))
+        self.round += 1
+        self.stack.clear()
+        for wall in self.walls:
+            wall.kill()
+
+        for cell in self.grid_cells:
+            cell.walls['top'] = True
+            cell.walls['right'] = True
+            cell.walls['bottom'] = True
+            cell.walls['left'] = True
+            cell.visited = False
 
         # Генерация стенок лабиринта
         current_cell = self.grid_cells[0]
@@ -47,7 +64,7 @@ class Level:
         #     next_cell = check_neighbors_second(cell, self.grid_cells)
         #     remove_walls(cell, next_cell)
 
-        # Создание спрайта стен
+        # Создание стен
         for cell in self.grid_cells:
             x = cell.x * self.tile
             y = cell.y * self.tile
@@ -62,13 +79,26 @@ class Level:
             if cell.walls['left']:
                 Border(x, y, x, y + self.tile, self.all_sprites, self.walls, self.collision_sprites)
 
+    def draw_text(self, text, color, x, y):
+        font = pygame.font.Font(self.font_name, 48)
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect()
+        text_rect.midtop = (x, y)
+        self.display_surface.blit(text_surface, text_rect)
+
+    def change_score(self, player):
+        if player == 'blue':
+            self.blue_wins += 1
+        else:
+            self.red_wins += 1
+
     def setup(self):
         flag = True
         while flag:
             pos1, pos2 = self.set_position()
-            Player(pos1, 1, self.all_sprites, self.player_sprites, self.collision_sprites,
+            Player(self, pos1, 1, self.all_sprites, self.player_sprites, self.collision_sprites,
                    self.walls)
-            Player(pos2, 2, self.all_sprites, self.player_sprites, self.collision_sprites,
+            Player(self, pos2, 2, self.all_sprites, self.player_sprites, self.collision_sprites,
                    self.walls)
             pygame.sprite.groupcollide(self.player_sprites, self.walls, True, False)
             if len(self.player_sprites) == 2:
@@ -78,17 +108,17 @@ class Level:
                     player.kill()
 
     def set_position(self):
-        width = SCREEN_WIDTH // self.tile * self.tile
-        height = SCREEN_HEIGHT // self.tile * self.tile
-        x1 = randint(50, width // 2 - 25)
-        y1 = randint(50, height - 50)
-        x2 = randint(width // 2 + 25, width - 50)
-        y2 = randint(50, height - 50)
+        x1 = randint(50, self.width // 2 - 25)
+        y1 = randint(50, self.height - 50)
+        x2 = randint(self.width // 2 + 25, self.width - 50)
+        y2 = randint(50, self.height - 50)
         return (x1, y1), (x2, y2)
 
     def run(self, dt):
         self.display_surface.fill(WHITE)
         for cell in self.grid_cells:
             cell.draw()
+        self.draw_text(f'BLUE: {self.blue_wins}', BLUE, 110, self.height + 10)
+        self.draw_text(f'RED: {self.red_wins}', RED, self.width - 100, self.height + 10)
         self.all_sprites.draw(self.display_surface)
         self.all_sprites.update(dt)

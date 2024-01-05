@@ -5,14 +5,16 @@ from timer import Timer
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, pos, direction, player_owned, player_sprites, collision_sprites, *groups):
+    def __init__(self, level, pos, direction, player_owned, player_sprites, collision_sprites, *groups):
         super().__init__(*groups)
+        self.level = level
+        self.round = level.round
         self.collision_sprites = collision_sprites
         self.player_sprites = player_sprites
         self.direction = direction
         self.player_owned = player_owned
-        self.radius = 10
-        self.speed = self.player_owned.speed + self.radius * 2
+        self.radius = 9
+        self.speed = self.player_owned.speed * 1.5
         self.lifetime = 10000
         self.image = pygame.Surface((2 * self.radius, 2 * self.radius),
                                     pygame.SRCALPHA)
@@ -47,6 +49,14 @@ class Bullet(pygame.sprite.Sprite):
                 if sprite in self.player_sprites:
                     self.kill()
                     sprite.kill()
+                    if sprite == self.player_sprites.sprites()[0]:
+                        self.level.change_score('red')
+                        self.player_sprites.sprites()[1].kill()
+                    else:
+                        self.level.change_score('blue')
+                        self.player_sprites.sprites()[0].kill()
+                    self.level.generation()
+                    self.level.setup()
                 if self.direction:
                     self.direction.reflect_ip(sprite.direction)
                 self.move(dt)
