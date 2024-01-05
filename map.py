@@ -12,6 +12,11 @@ class Cell:
         self.TILE = tile
         self.cols, self.rows = cols, rows
 
+    def draw(self):
+        x, y = self.x * self.TILE, self.y * self.TILE
+        if self.visited:
+            pygame.draw.rect(self.screen, pygame.Color("gray"), (x, y, self.TILE, self.TILE))
+
     def check_cell(self, grid_cells, x, y):
         if x < 0 or x > self.cols - 1 or y < 0 or y > self.rows - 1:
             return False
@@ -45,11 +50,11 @@ class Border(pygame.sprite.Sprite):
         x2, y2 = x2 - thickness / 2, y2 - thickness / 2
 
         if x1 == x2:  # вертикальная стенка
-            self.image = pygame.Surface([thickness, y2 - y1], pygame.SRCALPHA)
-            pygame.draw.rect(self.image, BLACK, (0, 0, thickness, y2 - y1))
+            self.image = pygame.Surface([thickness, y2 - y1 + thickness], pygame.SRCALPHA)
+            pygame.draw.rect(self.image, BLACK, (0, 0, thickness, y2 - y1 + thickness))
         elif y1 == y2:  # горизонтальная стенка
-            self.image = pygame.Surface([x2 - x1, thickness], pygame.SRCALPHA)
-            pygame.draw.rect(self.image, BLACK, (0, 0, x2 - x1, thickness))
+            self.image = pygame.Surface([x2 - x1 + thickness, thickness], pygame.SRCALPHA)
+            pygame.draw.rect(self.image, BLACK, (0, 0, x2 - x1 + thickness, thickness))
         else:
             print(x1, y1, x2, y2)
             print("ERROR")

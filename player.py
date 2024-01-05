@@ -7,8 +7,9 @@ from bullet import Bullet
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, player_number, all_sprites, player_sprites, collision_sprites, walls):
+    def __init__(self, level, pos, player_number, all_sprites, player_sprites, collision_sprites, walls):
         super().__init__(all_sprites, player_sprites, collision_sprites)
+        self.level = level
         self.all_sprites = all_sprites
         self.player_sprites = player_sprites
         self.walls = walls
@@ -71,7 +72,7 @@ class Player(pygame.sprite.Sprite):
     def use_attack(self):
         self.timers["use attack"].activate()
         if len(self.bullet_sprites) != 10:
-            Bullet((self.pos.x, self.pos.y), -self.direction, self, self.player_sprites, self.collision_sprites,
+            Bullet(self.level, (self.pos.x, self.pos.y), -self.direction, self, self.player_sprites, self.collision_sprites,
                    self.all_sprites,
                    self.bullet_sprites)
 
