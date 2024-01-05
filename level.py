@@ -20,6 +20,7 @@ class Level:
         self.font_name = pygame.font.match_font('arial')
         self.blue_wins = 0
         self.red_wins = 0
+        self.round = 0
         # спрайты
         self.all_sprites = pygame.sprite.Group()
         self.player_sprites = pygame.sprite.Group()
@@ -33,9 +34,11 @@ class Level:
         self.setup()
 
     def generation(self):
+        self.round += 1
         self.stack.clear()
         for wall in self.walls:
             wall.kill()
+
         for cell in self.grid_cells:
             cell.walls['top'] = True
             cell.walls['right'] = True
@@ -83,8 +86,8 @@ class Level:
         text_rect.midtop = (x, y)
         self.display_surface.blit(text_surface, text_rect)
 
-    def change_score(self, player_number):
-        if player_number == 1:
+    def change_score(self, player):
+        if player == 'blue':
             self.blue_wins += 1
         else:
             self.red_wins += 1

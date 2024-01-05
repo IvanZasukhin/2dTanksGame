@@ -72,9 +72,8 @@ class Player(pygame.sprite.Sprite):
     def use_attack(self):
         self.timers["use attack"].activate()
         if len(self.bullet_sprites) != 10:
-            Bullet(self.level, (self.pos.x, self.pos.y), -self.direction, self, self.player_sprites, self.collision_sprites,
-                   self.all_sprites,
-                   self.bullet_sprites)
+            Bullet(self.level, (self.pos.x, self.pos.y), -self.direction, self, self.player_sprites,
+                   self.collision_sprites, self.all_sprites, self.bullet_sprites)
 
     def update_timers(self):
         for timer in self.timers.values():

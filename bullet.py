@@ -8,6 +8,7 @@ class Bullet(pygame.sprite.Sprite):
     def __init__(self, level, pos, direction, player_owned, player_sprites, collision_sprites, *groups):
         super().__init__(*groups)
         self.level = level
+        self.round = level.round
         self.collision_sprites = collision_sprites
         self.player_sprites = player_sprites
         self.direction = direction
@@ -39,7 +40,7 @@ class Bullet(pygame.sprite.Sprite):
             timer.update()
 
     def check_life_bullet(self):
-        if not self.timers["time life"].active:
+        if not self.timers["time life"].active or self.round != self.level.round:
             self.kill()
 
     def check_collision(self):
@@ -48,10 +49,10 @@ class Bullet(pygame.sprite.Sprite):
                 if sprite in self.player_sprites:
                     self.timers["time life"].deactivate()
                     if sprite == self.player_sprites.sprites()[0]:
-                        self.level.change_score(2)
+                        self.level.change_score('red')
                         self.player_sprites.sprites()[1].kill()
                     else:
-                        self.level.change_score(1)
+                        self.level.change_score('blue')
                         self.player_sprites.sprites()[0].kill()
                     sprite.kill()
                     self.level.generation()
