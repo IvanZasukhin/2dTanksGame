@@ -44,8 +44,9 @@ class Player(pygame.sprite.Sprite):
         self.speed_angle = 0.5
         # Таймер
         self.timers = {
-            "use attack": Timer(100)
+            "use attack": Timer(250)
         }
+        self.timers["use attack"].activate()
 
     def import_animation(self):
         for animation in self.animations.keys():
@@ -73,7 +74,8 @@ class Player(pygame.sprite.Sprite):
         self.timers["use attack"].activate()
         maximum_bullets = 10
         if len(self.bullet_sprites) != maximum_bullets:
-            Bullet(self.level, (self.pos.x, self.pos.y), -self.direction, self, self.player_sprites, self.collision_sprites,
+            Bullet(self.level, (self.pos.x, self.pos.y), -self.direction, self, self.player_sprites,
+                   self.walls,
                    self.all_sprites,
                    self.bullet_sprites)
 

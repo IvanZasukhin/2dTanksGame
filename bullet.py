@@ -5,11 +5,11 @@ from timer import Timer
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, level, pos, direction, player_owned, player_sprites, collision_sprites, *groups):
+    def __init__(self, level, pos, direction, player_owned, player_sprites, walls, *groups):
         super().__init__(*groups)
         self.level = level
         self.round = level.round
-        self.collision_sprites = collision_sprites
+        self.walls = walls
         self.player_sprites = player_sprites
         self.direction = direction
         self.player_owned = player_owned
@@ -20,7 +20,7 @@ class Bullet(pygame.sprite.Sprite):
                                     pygame.SRCALPHA)
         pygame.draw.circle(self.image, BLACK,
                            (self.radius, self.radius), self.radius)
-        direction.scale_to_length(32 + self.radius + self.speed / 10)
+        direction.scale_to_length(38 + self.radius)
         self.pos = pygame.Vector2(pos[0] + direction.x, pos[1] + direction.y)
         self.rect = self.image.get_rect(center=self.pos)
 
@@ -28,6 +28,10 @@ class Bullet(pygame.sprite.Sprite):
             "time life": Timer(self.lifetime)
         }
         self.timers["time life"].activate()
+        if pygame.sprite.spritecollideany(self, self.walls):
+            self.kill()
+            player_owned.kill()
+            self.level.change_score()
 
     def update(self, dt):
         self.update_timers()
@@ -40,29 +44,24 @@ class Bullet(pygame.sprite.Sprite):
             timer.update()
 
     def check_life_bullet(self):
-        if not self.timers["time life"].active:
+        if not self.timers["time life"].active or self.round != self.level.round:
             self.kill()
 
     def check_collision(self, dt):
-        for sprite in self.collision_sprites.sprites():
-            if self is not sprite and sprite.is_collided_with(self):
-                if sprite in self.player_sprites:
-                    self.kill()
-                    sprite.kill()
-                    if sprite == self.player_sprites.sprites()[0]:
-                        self.level.change_score('red')
-                        self.player_sprites.sprites()[1].kill()
-                    else:
-                        self.level.change_score('blue')
-                        self.player_sprites.sprites()[0].kill()
-                    self.level.generation()
-                    self.level.setup()
+        for sprite in self.walls.sprites():
+            if sprite.is_collided_with(self):
                 if self.direction:
                     self.direction.reflect_ip(sprite.direction)
                 self.move(dt)
                 if sprite.is_collided_with(self):
                     self.direction.reflect_ip(sprite.direction.rotate(90))
                     self.move(dt)
+        for sprite in self.player_sprites.sprites():
+            if sprite.is_collided_with(self):
+                if sprite in self.player_sprites:
+                    self.kill()
+                    sprite.kill()
+                    self.level.change_score()
 
     def move(self, dt):
         try:

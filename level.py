@@ -86,11 +86,14 @@ class Level:
         text_rect.midtop = (x, y)
         self.display_surface.blit(text_surface, text_rect)
 
-    def change_score(self, player):
-        if player == 'blue':
+    def change_score(self):
+        if self.player_sprites.sprites()[0].player_number == 1:
             self.blue_wins += 1
         else:
             self.red_wins += 1
+        self.player_sprites.sprites()[0].kill()
+        self.generation()
+        self.setup()
 
     def setup(self):
         flag = True

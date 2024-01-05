@@ -7,7 +7,7 @@ class Cell:
     def __init__(self, screen, x, y, tile, cols, rows):
         self.screen = screen
         self.x, self.y = x, y
-        self.walls = {'top': True, 'right': True, 'bottom': True, 'left': True}
+        self.walls = {}
         self.visited = False
         self.TILE = tile
         self.cols, self.rows = cols, rows
@@ -45,7 +45,7 @@ class Cell:
 class Border(pygame.sprite.Sprite):
     def __init__(self, x1, y1, x2, y2, *groups):
         super().__init__(*groups)
-        thickness = 20
+        thickness = 10
         x1, y1 = x1 - thickness / 2, y1 - thickness / 2
         x2, y2 = x2 - thickness / 2, y2 - thickness / 2
 
