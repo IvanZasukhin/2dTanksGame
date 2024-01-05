@@ -1,6 +1,6 @@
 from pygame import Color, K_LEFT, K_DOWN, K_a, K_s, K_RIGHT, K_SPACE, K_d, K_e, K_w, K_UP
 
-FPS = 60
+FPS = 0
 BLACK = Color('black')
 ORANGE = Color('orange')
 RED = Color('red')

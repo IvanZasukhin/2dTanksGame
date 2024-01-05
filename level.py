@@ -14,8 +14,8 @@ class Level:
         self.stack = []
         self.tile = 225
         self.cols, self.rows = SCREEN_WIDTH // self.tile, (SCREEN_HEIGHT - 75) // self.tile
-        self.width = SCREEN_WIDTH // self.tile * self.tile
-        self.height = (SCREEN_HEIGHT - 75) // self.tile * self.tile
+        self.map_width = SCREEN_WIDTH // self.tile * self.tile
+        self.map_height = (SCREEN_HEIGHT - 75) // self.tile * self.tile
         # отображение побед
         self.font_name = pygame.font.match_font('arial')
         self.blue_wins = 0
@@ -111,17 +111,17 @@ class Level:
                     player.kill()
 
     def set_position(self):
-        x1 = randint(50, self.width // 2 - 25)
-        y1 = randint(50, self.height - 50)
-        x2 = randint(self.width // 2 + 25, self.width - 50)
-        y2 = randint(50, self.height - 50)
+        x1 = randint(50, self.map_width // 2 - 25)
+        y1 = randint(50, self.map_height - 50)
+        x2 = randint(self.map_width // 2 + 25, self.map_width - 50)
+        y2 = randint(50, self.map_height - 50)
         return (x1, y1), (x2, y2)
 
     def run(self, dt):
         self.display_surface.fill(WHITE)
         for cell in self.grid_cells:
             cell.draw()
-        self.draw_text(f'BLUE: {self.blue_wins}', BLUE, 110, self.height + 10)
-        self.draw_text(f'RED: {self.red_wins}', RED, self.width - 100, self.height + 10)
+        self.draw_text(f'BLUE: {self.blue_wins}', BLUE, 110, self.map_height + 10)
+        self.draw_text(f'RED: {self.red_wins}', RED, self.map_width - 100, self.map_height + 10)
         self.all_sprites.draw(self.display_surface)
         self.all_sprites.update(dt)
