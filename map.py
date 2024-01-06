@@ -1,6 +1,7 @@
-import pygame
-
+import pygame.sprite
 from random import choice
+
+from pygame import draw
 from settings import *
 
 

@@ -13,7 +13,7 @@ class Menu:
 
         pygame.init()
         self.screen = pygame.display.set_mode((400, 300))
-        pygame.display.set_caption('Menu')
+        pygame.display.set_caption('Танки 2')
         self.menu = pygame_menu.Menu('Танки 2D', 400, 300,
                                      theme=pygame_menu.themes.THEME_DEFAULT)
         self.menu.add.button('Играть', self.start_the_game)
@@ -23,7 +23,7 @@ class Menu:
         self.settings = pygame_menu.Menu('Настройки', 400, 300,
                                          theme=pygame_menu.themes.THEME_DEFAULT)
         self.settings.add.selector('Графика:', [('Низкая', 0), ('Средняя', 1), ('Высокая', 2)],
-                                   onchange=self.set_graphics_quality)
+                                   onchange=self.set_graphics_quality, default=2)
         self.settings.add.selector('FPS:', [('30', 30), ('60', 60), ('120', 120)],
                                    onchange=self.set_fps, default=1)
         self.settings.add.button('Назад', self.menu_init)
@@ -54,7 +54,7 @@ class Game:
         self.fps = settings[1]
 
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
-        pygame.display.set_caption('Game')
+        pygame.display.set_caption('Танки 2')
         self.clock = pygame.time.Clock()
         self.level = Level(settings)
 

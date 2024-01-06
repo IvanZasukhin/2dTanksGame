@@ -7,7 +7,7 @@ BLUE = Color('blue')
 WHITE = Color('white')
 GRAY = Color('gray')
 PLAYER_ZOOM = 0.125
-SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = (900, 975)
+SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = (875, 775)
 MANAGEMENT = {
     1: {"left": K_a, "right": K_d, "up": K_w,
         "down": K_s, "attack": K_e},

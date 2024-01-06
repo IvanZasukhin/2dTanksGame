@@ -15,14 +15,17 @@ class Level:
         # карта
         self.grid_cells = []
         self.stack = []
-        self.tile = 225
+        self.tile = 175
         self.cols, self.rows = SCREEN_WIDTH // self.tile, (SCREEN_HEIGHT - 75) // self.tile
         self.map_width = SCREEN_WIDTH // self.tile * self.tile
         self.map_height = (SCREEN_HEIGHT - 75) // self.tile * self.tile
         # отображение побед
+        self.overlay = Overlay(self.screen)
         self.blue_wins = 0
         self.red_wins = 0
         self.round = 0
+        self.overlay.timers["animation"].freeze = True
+
         # спрайты
         self.all_sprites = pygame.sprite.Group()
         self.player_sprites = pygame.sprite.Group()
@@ -37,7 +40,10 @@ class Level:
         }
         self.timers["wait round"].freeze = True
 
-        self.overlay = Overlay(self.screen)
+        self.new_lvl()
+
+    def new_lvl(self):
+        self.overlay.timers["animation"].activate()
         self.generation()
         self.setup()
 
@@ -93,8 +99,7 @@ class Level:
             elif self.player_sprites.sprites()[0].player_number == 2:
                 self.red_wins += 1
             self.player_sprites.sprites()[0].kill()
-        self.generation()
-        self.setup()
+        self.new_lvl()
 
     def setup(self):
         flag = True
@@ -120,10 +125,11 @@ class Level:
         self.screen.fill(WHITE)
         for cell in self.grid_cells:
             cell.draw()
-        self.all_sprites.draw(self.screen)
-        self.all_sprites.update(dt)
-
         self.overlay.display(self.round, self.blue_wins, self.red_wins)
+        self.overlay.update_timers()
+        self.all_sprites.draw(self.screen)
+        if self.overlay.check_animation():
+            self.all_sprites.update(dt)
         self.update_timers()
 
     def update_timers(self):
