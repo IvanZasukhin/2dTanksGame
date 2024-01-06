@@ -31,6 +31,10 @@ class Player(pygame.sprite.Sprite):
         self.direction_rotation = 0
         self.pos = pygame.Vector2(pos)
         self.direction = pygame.Vector2(vec)
+        try:
+            self.direction.normalize_ip()
+        except ValueError:
+            pass
         self.max_speed = 200
         self.speed = 200
         self.speed_angle = 0.5
