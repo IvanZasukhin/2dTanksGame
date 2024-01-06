@@ -43,7 +43,7 @@ class Level:
         self.new_lvl()
 
     def new_lvl(self):
-        self.overlay.timers["animation"].activate()
+        self.overlay.start_animation()
         self.generation()
         self.setup()
 

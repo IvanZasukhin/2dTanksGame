@@ -25,12 +25,17 @@ class Overlay:
         self.draw_text(f'RED: {red_wins}', RED, self.screen.get_width() - 100, self.screen.get_height())
         self.draw_text(f'ROUND: {round}', BLACK, self.screen.get_width() // 2, self.screen.get_height())
 
-    def start_animation(self):
+    def animation(self):
         fonts = font.Font(self.font_name, 200)
         text_surface = fonts.render(str(self.digit), True, WHITE)
         text_rect = text_surface.get_rect()
         text_rect.center = (self.screen.get_width() / 2, self.screen.get_height() / 2)
         self.screen.blit(text_surface, text_rect)
+
+    def start_animation(self):
+        self.digit = 3
+        self.stop_game = False
+        self.timers["animation"].activate()
 
     def update_timers(self):
         for timer in self.timers.values():
@@ -38,7 +43,7 @@ class Overlay:
 
     def check_animation(self):
         if self.timers["animation"].active:
-            self.start_animation()
+            self.animation()
         else:
             if self.digit != 1:
                 self.digit -= 1

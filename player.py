@@ -25,22 +25,6 @@ class Player(pygame.sprite.Sprite):
         self.speed_animation = 15
         self.frame = 0
         self.import_animation()
-        # настройки изображения
-        self.player_zoom = PLAYER_ZOOM
-        self.image = self.animations[self.status][self.frame]
-        self.orig_image = self.animations[self.status][0]
-        self.image = pygame.transform.rotate(self.image, 180)
-        self.orig_image = pygame.transform.rotate(self.orig_image, 180)
-        if self.graphics_quality == 1:
-            self.image = pygame.transform.scale_by(self.image, self.player_zoom)
-            self.orig_image = pygame.transform.scale_by(self.orig_image, self.player_zoom)
-        elif self.graphics_quality == 2:
-            self.image = pygame.transform.smoothscale_by(self.image, self.player_zoom)
-            self.orig_image = pygame.transform.scale_by(self.orig_image, self.player_zoom)
-        self.rect = self.image.get_rect(center=pos)
-        self.hit_box = self.rect.copy()
-
-        self.mask = pygame.mask.from_surface(self.orig_image)
         # Движение
         self.old_direction = 0
         self.movement = 0
@@ -50,6 +34,23 @@ class Player(pygame.sprite.Sprite):
         self.max_speed = 200
         self.speed = 200
         self.speed_angle = 0.5
+        # настройки изображения
+        self.player_zoom = PLAYER_ZOOM
+        self.image = self.animations[self.status][self.frame]
+        self.orig_image = self.animations[self.status][0]
+        angle = self.direction.angle_to((0, -1))
+        self.image = pygame.transform.rotate(self.image, angle)
+        self.orig_image = pygame.transform.rotate(self.orig_image, angle)
+        if self.graphics_quality == 1:
+            self.image = pygame.transform.scale_by(self.image, self.player_zoom)
+            self.orig_image = pygame.transform.scale_by(self.orig_image, self.player_zoom)
+        elif self.graphics_quality == 2:
+            self.image = pygame.transform.smoothscale_by(self.image, self.player_zoom)
+            self.orig_image = pygame.transform.scale_by(self.orig_image, self.player_zoom)
+        self.rect = self.image.get_rect(center=pos)
+        self.hit_box = self.rect.copy()
+        self.mask = pygame.mask.from_surface(self.orig_image)
+
         # Таймер
         self.timers = {
             "use attack": Timer(250)
@@ -147,17 +148,9 @@ class Player(pygame.sprite.Sprite):
             if sprite.is_collided_with(self):
                 movement_v = -self.direction * self.movement
                 self.movement_collision(dt, movement_v)
-        for sprite in self.player_sprites.sprites():
             if self is not sprite and sprite.is_collided_with(self):
                 movement_v = -self.direction * self.movement
                 self.movement_collision(dt, movement_v)
-                # print(self.direction.angle_to(sprite.direction) % 180)
-                # self.direction_rotation = 0
-                # if 90 < self.direction.angle_to(sprite.direction) < 180:
-                #     self.direction_rotation = 1
-                # elif 0 < self.direction.angle_to(sprite.direction) < 90:
-                #     self.direction_rotation = 1
-                # self.direction = self.direction.rotate(dt * 360 * (self.speed_angle / 2) * self.direction_rotation)
 
     def collision_turn(self, dt):
         for sprite in self.walls.sprites():
