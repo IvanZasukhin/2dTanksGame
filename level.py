@@ -137,3 +137,4 @@ class Level:
     def update_timers(self):
         for timer in self.timers.values():
             timer.update()
+# TODO: сделать отдельно принятие клавиши и заблокировать с помощью self.overlay.check_animation()

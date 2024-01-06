@@ -15,18 +15,18 @@ class Menu:
         self.screen = pygame.display.set_mode((400, 300))
         pygame.display.set_caption('Танки 2D')
         self.menu = pygame_menu.Menu('Танки 2D', 400, 300,
-                                     theme=pygame_menu.themes.THEME_DEFAULT)
-        self.menu.add.button('Играть', self.start_the_game)
-        self.menu.add.button('Настройки', self.settings_init)
-        self.menu.add.button('Выйти', pygame_menu.events.EXIT)
+                                     theme=pygame_menu.themes.THEME_DEFAULT, mouse_enabled=False)
+        self.menu.add.button('Играть', self.start_the_game, selection_color=BLACK)
+        self.menu.add.button('Настройки', self.settings_init, selection_color=BLACK)
+        self.menu.add.button('Выйти', pygame_menu.events.EXIT, selection_color=BLACK)
 
         self.settings = pygame_menu.Menu('Настройки', 400, 300,
                                          theme=pygame_menu.themes.THEME_DEFAULT)
         self.settings.add.selector('Графика:', [('Низкая', 0), ('Средняя', 1), ('Высокая', 2)],
-                                   onchange=self.set_graphics_quality, default=2)
+                                   onchange=self.set_graphics_quality, default=2, selection_color=BLACK)
         self.settings.add.selector('FPS:', [('30', 30), ('60', 60), ('120', 120)],
-                                   onchange=self.set_fps, default=1)
-        self.settings.add.button('Назад', self.menu_init)
+                                   onchange=self.set_fps, default=1, selection_color=BLACK)
+        self.settings.add.button('Назад', self.menu_init, selection_color=BLACK)
 
         self.menu_init()
 
@@ -64,6 +64,9 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        Menu()
             dt = self.clock.tick(self.fps) / 1000
             self.level.run(dt)
             pygame.display.update()
