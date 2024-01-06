@@ -1,4 +1,5 @@
 import pygame
+
 from random import choice
 from settings import *
 

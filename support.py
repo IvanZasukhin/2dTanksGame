@@ -1,16 +1,17 @@
 import os
+
 from pygame import image, transform
 from settings import *
 
 
-def import_image(path):
+def import_image(path, graphics_quality):
     surface_list = []
     for _, _, image_files in os.walk(path):
         for im in image_files:
             fullname = path + "/" + im
             im = image.load(fullname).convert_alpha()
             image_surface = transform.scale(im, (512, 512))
-            if GRAPHICS_QUALITY == 0:
+            if graphics_quality == 0:
                 image_surface = transform.scale_by(image_surface, PLAYER_ZOOM)
             surface_list.append(image_surface)
     return surface_list

@@ -4,12 +4,12 @@ from settings import *
 from support import remove_walls
 from overlay import Overlay
 from random import randint
-
 from timer import Timer
 
 
 class Level:
-    def __init__(self):
+    def __init__(self, settings):
+        self.settings = settings
         # окно
         self.screen = pygame.display.get_surface()
         # карта
@@ -33,7 +33,7 @@ class Level:
                 self.grid_cells.append(Cell(self.screen, x, y, self.tile, self.cols, self.rows))
         # Таймер
         self.timers = {
-            "wait round": Timer(800, lambda: self.change_score())
+            "wait round": Timer(500, lambda: self.change_score())
         }
         self.timers["wait round"].freeze = True
 
@@ -96,13 +96,12 @@ class Level:
         self.generation()
         self.setup()
 
-
     def setup(self):
         flag = True
         while flag:
             pos1, pos2 = self.set_position()
-            Player(self, pos1, 1, self.all_sprites, self.player_sprites, self.walls)
-            Player(self, pos2, 2, self.all_sprites, self.player_sprites, self.walls)
+            Player(self, self.settings, pos1, 1, self.all_sprites, self.player_sprites, self.walls)
+            Player(self, self.settings, pos2, 2, self.all_sprites, self.player_sprites, self.walls)
             pygame.sprite.groupcollide(self.player_sprites, self.walls, True, False)
             if len(self.player_sprites) == 2:
                 flag = False

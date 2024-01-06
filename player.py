@@ -1,4 +1,5 @@
 import pygame.sprite
+
 from support import *
 from timer import Timer
 from settings import *
@@ -6,9 +7,10 @@ from bullet import Bullet
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, level, pos, player_number, all_sprites, player_sprites, walls):
+    def __init__(self, level, settings, pos, player_number, all_sprites, player_sprites, walls):
         super().__init__(all_sprites, player_sprites)
         self.level = level
+        self.graphics_quality = settings[0]
         self.all_sprites = all_sprites
         self.player_sprites = player_sprites
         self.walls = walls
@@ -29,10 +31,10 @@ class Player(pygame.sprite.Sprite):
         self.orig_image = self.animations[self.status][0]
         self.image = pygame.transform.rotate(self.image, 180)
         self.orig_image = pygame.transform.rotate(self.orig_image, 180)
-        if GRAPHICS_QUALITY == 1:
+        if self.graphics_quality == 1:
             self.image = pygame.transform.scale_by(self.image, self.player_zoom)
             self.orig_image = pygame.transform.scale_by(self.orig_image, self.player_zoom)
-        elif GRAPHICS_QUALITY == 2:
+        elif self.graphics_quality == 2:
             self.image = pygame.transform.smoothscale_by(self.image, self.player_zoom)
             self.orig_image = pygame.transform.scale_by(self.orig_image, self.player_zoom)
         self.rect = self.image.get_rect(center=pos)
@@ -56,7 +58,7 @@ class Player(pygame.sprite.Sprite):
     def import_animation(self):
         for animation in self.animations.keys():
             full_path = f"data/animations/{self.player_number}/standard/{animation}"
-            self.animations[animation] = import_image(full_path)
+            self.animations[animation] = import_image(full_path, self.graphics_quality)
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -131,10 +133,10 @@ class Player(pygame.sprite.Sprite):
     def rotate_player(self, angle):
         self.image = pygame.transform.rotate(self.animations[self.status][int(self.frame)], angle)
         self.orig_image = pygame.transform.rotate(self.animations[self.status][0], angle)
-        if GRAPHICS_QUALITY == 1:
+        if self.graphics_quality == 1:
             self.image = pygame.transform.scale_by(self.image, self.player_zoom)
             self.orig_image = pygame.transform.scale_by(self.orig_image, self.player_zoom)
-        elif GRAPHICS_QUALITY == 2:
+        elif self.graphics_quality == 2:
             self.image = pygame.transform.smoothscale_by(self.image, self.player_zoom)
             self.orig_image = pygame.transform.scale_by(self.orig_image, self.player_zoom)
         self.mask = pygame.mask.from_surface(self.orig_image)
