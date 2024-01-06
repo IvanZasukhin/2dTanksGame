@@ -15,8 +15,8 @@ class Level:
         self.stack = []
         self.tile = 225
         self.cols, self.rows = SCREEN_WIDTH // self.tile, (SCREEN_HEIGHT - 75) // self.tile
-        self.width = SCREEN_WIDTH // self.tile * self.tile
-        self.height = (SCREEN_HEIGHT - 75) // self.tile * self.tile
+        self.map_width = SCREEN_WIDTH // self.tile * self.tile
+        self.map_height = (SCREEN_HEIGHT - 75) // self.tile * self.tile
         # отображение побед
         self.blue_wins = 0
         self.red_wins = 0
@@ -101,10 +101,10 @@ class Level:
                     player.kill()
 
     def set_position(self):
-        x1 = randint(50, self.width // 2 - 25)
-        y1 = randint(50, self.height - 50)
-        x2 = randint(self.width // 2 + 25, self.width - 50)
-        y2 = randint(50, self.height - 50)
+        x1 = randint(50, self.map_width // 2 - 25)
+        y1 = randint(50, self.map_height - 50)
+        x2 = randint(self.map_width // 2 + 25, self.map_width - 50)
+        y2 = randint(50, self.map_height - 50)
         return (x1, y1), (x2, y2)
 
     def run(self, dt):
