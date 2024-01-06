@@ -2,13 +2,14 @@ from map import *
 from player import Player
 from settings import *
 from support import remove_walls
+from overlay import Overlay
 from random import randint
 
 
 class Level:
-    def __init__(self, screen):
+    def __init__(self):
         # окно
-        self.display_surface = screen
+        self.screen = pygame.display.get_surface()
         # карта
         self.grid_cells = []
         self.stack = []
@@ -17,7 +18,6 @@ class Level:
         self.width = SCREEN_WIDTH // self.tile * self.tile
         self.height = (SCREEN_HEIGHT - 75) // self.tile * self.tile
         # отображение побед
-        self.font_name = pygame.font.match_font('arial')
         self.blue_wins = 0
         self.red_wins = 0
         self.round = 0
@@ -25,11 +25,12 @@ class Level:
         self.all_sprites = pygame.sprite.Group()
         self.player_sprites = pygame.sprite.Group()
         self.walls = pygame.sprite.Group()
-        self.collision_sprites = pygame.sprite.Group()
         # генерация
         for y in range(self.rows):
             for x in range(self.cols):
-                self.grid_cells.append(Cell(self.display_surface, x, y, self.tile, self.cols, self.rows))
+                self.grid_cells.append(Cell(self.screen, x, y, self.tile, self.cols, self.rows))
+
+        self.overlay = Overlay(self.screen)
         self.generation()
         self.setup()
 
@@ -69,22 +70,13 @@ class Level:
             x = cell.x * self.tile
             y = cell.y * self.tile
             if cell.walls['top']:
-                Border(x, y, x + self.tile, y, self.all_sprites, self.walls, self.collision_sprites)
+                Border(x, y, x + self.tile, y, self.all_sprites, self.walls)
             if cell.walls['right']:
-                Border(x + self.tile, y, x + self.tile, y + self.tile, self.all_sprites, self.walls,
-                       self.collision_sprites)
+                Border(x + self.tile, y, x + self.tile, y + self.tile, self.all_sprites, self.walls)
             if cell.walls['bottom']:
-                Border(x, y + self.tile, x + self.tile, y + self.tile, self.all_sprites, self.walls,
-                       self.collision_sprites)
+                Border(x, y + self.tile, x + self.tile, y + self.tile, self.all_sprites, self.walls)
             if cell.walls['left']:
-                Border(x, y, x, y + self.tile, self.all_sprites, self.walls, self.collision_sprites)
-
-    def draw_text(self, text, color, x, y):
-        font = pygame.font.Font(self.font_name, 48)
-        text_surface = font.render(text, True, color)
-        text_rect = text_surface.get_rect()
-        text_rect.midtop = (x, y)
-        self.display_surface.blit(text_surface, text_rect)
+                Border(x, y, x, y + self.tile, self.all_sprites, self.walls)
 
     def change_score(self):
         if self.player_sprites.sprites()[0].player_number == 1:
@@ -99,10 +91,8 @@ class Level:
         flag = True
         while flag:
             pos1, pos2 = self.set_position()
-            Player(self, pos1, 1, self.all_sprites, self.player_sprites, self.collision_sprites,
-                   self.walls)
-            Player(self, pos2, 2, self.all_sprites, self.player_sprites, self.collision_sprites,
-                   self.walls)
+            Player(self, pos1, 1, self.all_sprites, self.player_sprites, self.walls)
+            Player(self, pos2, 2, self.all_sprites, self.player_sprites, self.walls)
             pygame.sprite.groupcollide(self.player_sprites, self.walls, True, False)
             if len(self.player_sprites) == 2:
                 flag = False
@@ -118,10 +108,10 @@ class Level:
         return (x1, y1), (x2, y2)
 
     def run(self, dt):
-        self.display_surface.fill(WHITE)
+        self.screen.fill(WHITE)
         for cell in self.grid_cells:
             cell.draw()
-        self.draw_text(f'BLUE: {self.blue_wins}', BLUE, 110, self.height + 10)
-        self.draw_text(f'RED: {self.red_wins}', RED, self.width - 100, self.height + 10)
-        self.all_sprites.draw(self.display_surface)
+        self.all_sprites.draw(self.screen)
         self.all_sprites.update(dt)
+
+        self.overlay.display(self.round, self.blue_wins, self.red_wins)

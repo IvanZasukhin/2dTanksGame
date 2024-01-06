@@ -7,13 +7,12 @@ from bullet import Bullet
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, level, pos, player_number, all_sprites, player_sprites, collision_sprites, walls):
-        super().__init__(all_sprites, player_sprites, collision_sprites)
+    def __init__(self, level, pos, player_number, all_sprites, player_sprites, walls):
+        super().__init__(all_sprites, player_sprites)
         self.level = level
         self.all_sprites = all_sprites
         self.player_sprites = player_sprites
         self.walls = walls
-        self.collision_sprites = collision_sprites
         self.bullet_sprites = pygame.sprite.Group()
         self.player_number = player_number
         self.MANAGEMENT = MANAGEMENT[self.player_number]
@@ -26,13 +25,17 @@ class Player(pygame.sprite.Sprite):
         self.frame = 0
         self.import_animation()
         # настройки изображения
-        self.image = self.animations[self.status][self.frame]
         self.player_zoom = PLAYER_ZOOM
-        self.image = pygame.transform.rotate(self.image, 180)
+        self.image = self.animations[self.status][self.frame]
         self.orig_image = self.animations[self.status][0]
+        self.image = pygame.transform.rotate(self.image, 180)
+        self.orig_image = pygame.transform.rotate(self.orig_image, 180)
         if GRAPHICS_QUALITY == 1:
+            self.image = pygame.transform.scale_by(self.image, self.player_zoom)
+            self.orig_image = pygame.transform.scale_by(self.orig_image, self.player_zoom)
+        elif GRAPHICS_QUALITY == 2:
             self.image = pygame.transform.smoothscale_by(self.image, self.player_zoom)
-            self.orig_image = pygame.transform.scale_by(self.image, self.player_zoom)
+            self.orig_image = pygame.transform.scale_by(self.orig_image, self.player_zoom)
         self.rect = self.image.get_rect(center=pos)
         self.hit_box = self.rect.copy()
 
@@ -97,6 +100,14 @@ class Player(pygame.sprite.Sprite):
 
     def move(self, dt):
         self.status = "stop"
+        # поворот танка
+        if self.direction_rotation < 0:
+            self.status = "left"
+            self.speed_animation = 30
+        elif self.direction_rotation > 0:
+            self.speed_animation = 30
+            self.status = "right"
+        self.direction = self.direction.rotate(dt * 360 * self.speed_angle * self.direction_rotation)
         # Движение
         movement_v = -self.direction * self.movement
         if movement_v.length() > 0:
@@ -111,31 +122,32 @@ class Player(pygame.sprite.Sprite):
             self.hit_box.centery = round(self.pos.y)
             self.rect.center = self.hit_box.center
 
-        # поворот танка
-        if self.direction_rotation < 0:
-            self.status = "left"
-            self.speed_animation = 30
-        elif self.direction_rotation > 0:
-            self.speed_animation = 30
-            self.status = "right"
-        self.direction = self.direction.rotate(dt * 360 * self.speed_angle * self.direction_rotation)
-
     def animation(self, dt):
         self.frame += self.speed_animation * dt
         if self.frame >= len(self.animations[self.status]):
             self.frame = 0
         self.image = self.animations[self.status][int(self.frame)]
         angle = self.direction.angle_to((0, -1))
+        self.rotate_player(angle)
+
+    def rotate_player(self, angle):
         self.image = pygame.transform.rotate(self.animations[self.status][int(self.frame)], angle)
         self.orig_image = pygame.transform.rotate(self.animations[self.status][0], angle)
         if GRAPHICS_QUALITY == 1:
+            self.image = pygame.transform.scale_by(self.image, self.player_zoom)
+            self.orig_image = pygame.transform.scale_by(self.orig_image, self.player_zoom)
+        elif GRAPHICS_QUALITY == 2:
             self.image = pygame.transform.smoothscale_by(self.image, self.player_zoom)
-            self.orig_image = pygame.transform.scale_by(self.image, self.player_zoom)
+            self.orig_image = pygame.transform.scale_by(self.orig_image, self.player_zoom)
         self.mask = pygame.mask.from_surface(self.orig_image)
         self.rect = self.image.get_rect(center=self.hit_box.center)
 
     def collision(self, dt):
-        for sprite in self.collision_sprites.sprites():
+        for sprite in self.walls.sprites():
+            if sprite.is_collided_with(self):
+                movement_v = -self.direction * self.movement
+                self.movement_collision(dt, movement_v)
+        for sprite in self.player_sprites.sprites():
             if self is not sprite and sprite.is_collided_with(self):
                 movement_v = -self.direction * self.movement
                 self.movement_collision(dt, movement_v)
@@ -148,18 +160,18 @@ class Player(pygame.sprite.Sprite):
                 # self.direction = self.direction.rotate(dt * 360 * (self.speed_angle / 2) * self.direction_rotation)
 
     def collision_turn(self, dt):
-        for sprite in self.collision_sprites.sprites():
+        for sprite in self.walls.sprites():
+            if sprite.is_collided_with(self):
+                if self.old_direction != self.direction:
+                    self.direction = self.direction.rotate(dt * 360 * self.speed_angle * -self.direction_rotation)
+                    angle = self.direction.angle_to((0, -1))
+                    self.rotate_player(angle)
+        for sprite in self.player_sprites.sprites():
             if self is not sprite and sprite.is_collided_with(self):
                 if self.old_direction != self.direction:
                     self.direction = self.direction.rotate(dt * 360 * self.speed_angle * -self.direction_rotation)
                     angle = self.direction.angle_to((0, -1))
-                    self.image = pygame.transform.rotate(self.animations[self.status][int(self.frame)], angle)
-                    self.orig_image = pygame.transform.rotate(self.animations[self.status][0], angle)
-                    if GRAPHICS_QUALITY == 1:
-                        self.image = pygame.transform.smoothscale_by(self.image, self.player_zoom)
-                        self.orig_image = pygame.transform.scale_by(self.image, self.player_zoom)
-                    self.mask = pygame.mask.from_surface(self.orig_image)
-                    self.rect = self.image.get_rect(center=self.hit_box.center)
+                    self.rotate_player(angle)
 
     def is_collided_with(self, sprite):
         return pygame.sprite.collide_mask(self, sprite)
