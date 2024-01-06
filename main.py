@@ -23,7 +23,7 @@ class Menu:
         self.settings = pygame_menu.Menu('Настройки', 400, 300,
                                          theme=pygame_menu.themes.THEME_DEFAULT)
         self.settings.add.selector('Графика:', [('Низкая', 0), ('Средняя', 1), ('Высокая', 2)],
-                                   onchange=self.set_graphics_quality)
+                                   onchange=self.set_graphics_quality, default=1)
         self.settings.add.selector('FPS:', [('30', 30), ('60', 60), ('120', 120)],
                                    onchange=self.set_fps, default=1)
         self.settings.add.button('Назад', self.menu_init)

@@ -3,7 +3,7 @@ from player import Player
 from settings import *
 from support import remove_walls
 from overlay import Overlay
-from random import randint
+from random import randint, random
 from timer import Timer
 
 
@@ -99,9 +99,9 @@ class Level:
     def setup(self):
         flag = True
         while flag:
-            pos1, pos2 = self.set_position()
-            Player(self, self.settings, pos1, 1, self.all_sprites, self.player_sprites, self.walls)
-            Player(self, self.settings, pos2, 2, self.all_sprites, self.player_sprites, self.walls)
+            pos1, pos2, vec1, vec2 = self.set_position()
+            Player(self, self.settings, pos1, vec1, 1, self.all_sprites, self.player_sprites, self.walls)
+            Player(self, self.settings, pos2, vec2, 2, self.all_sprites, self.player_sprites, self.walls)
             pygame.sprite.groupcollide(self.player_sprites, self.walls, True, False)
             if len(self.player_sprites) == 2:
                 flag = False
@@ -114,7 +114,9 @@ class Level:
         y1 = randint(50, self.map_height - 50)
         x2 = randint(self.map_width // 2 + 25, self.map_width - 50)
         y2 = randint(50, self.map_height - 50)
-        return (x1, y1), (x2, y2)
+        vec1 = (random() - 1, random() - 1)
+        vec2 = (random() - 1, random() - 1)
+        return (x1, y1), (x2, y2), vec1, vec2
 
     def run(self, dt):
         self.screen.fill(WHITE)

@@ -7,7 +7,7 @@ from bullet import Bullet
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, level, settings, pos, player_number, all_sprites, player_sprites, walls):
+    def __init__(self, level, settings, pos, vec, player_number, all_sprites, player_sprites, walls):
         super().__init__(all_sprites, player_sprites)
         self.level = level
         self.graphics_quality = settings[0]
@@ -46,7 +46,7 @@ class Player(pygame.sprite.Sprite):
         self.movement = 0
         self.direction_rotation = 0
         self.pos = pygame.Vector2(pos)
-        self.direction = pygame.Vector2((0, 1))
+        self.direction = pygame.Vector2(vec)
         self.max_speed = 200
         self.speed = 200
         self.speed_angle = 0.5
