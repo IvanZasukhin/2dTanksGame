@@ -1,5 +1,4 @@
 import pygame.sprite
-
 from support import *
 from timer import Timer
 from settings import *
@@ -53,7 +52,6 @@ class Player(pygame.sprite.Sprite):
         self.timers = {
             "use attack": Timer(250)
         }
-        self.timers["use attack"].activate()
 
     def import_animation(self):
         for animation in self.animations.keys():

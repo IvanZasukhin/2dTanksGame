@@ -5,6 +5,8 @@ from support import remove_walls
 from overlay import Overlay
 from random import randint
 
+from timer import Timer
+
 
 class Level:
     def __init__(self):
@@ -29,6 +31,11 @@ class Level:
         for y in range(self.rows):
             for x in range(self.cols):
                 self.grid_cells.append(Cell(self.screen, x, y, self.tile, self.cols, self.rows))
+        # Таймер
+        self.timers = {
+            "wait round": Timer(800, lambda: self.change_score())
+        }
+        self.timers["wait round"].freeze = True
 
         self.overlay = Overlay(self.screen)
         self.generation()
@@ -79,13 +86,16 @@ class Level:
                 Border(x, y, x, y + self.tile, self.all_sprites, self.walls)
 
     def change_score(self):
-        if self.player_sprites.sprites()[0].player_number == 1:
-            self.blue_wins += 1
-        else:
-            self.red_wins += 1
-        self.player_sprites.sprites()[0].kill()
+        self.timers["wait round"].freeze = True
+        if self.player_sprites.sprites():
+            if self.player_sprites.sprites()[0].player_number == 1:
+                self.blue_wins += 1
+            elif self.player_sprites.sprites()[0].player_number == 2:
+                self.red_wins += 1
+            self.player_sprites.sprites()[0].kill()
         self.generation()
         self.setup()
+
 
     def setup(self):
         flag = True
@@ -115,3 +125,8 @@ class Level:
         self.all_sprites.update(dt)
 
         self.overlay.display(self.round, self.blue_wins, self.red_wins)
+        self.update_timers()
+
+    def update_timers(self):
+        for timer in self.timers.values():
+            timer.update()

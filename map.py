@@ -55,9 +55,6 @@ class Border(pygame.sprite.Sprite):
         elif y1 == y2:  # горизонтальная стенка
             self.image = pygame.Surface([x2 - x1 + thickness, thickness], pygame.SRCALPHA)
             pygame.draw.rect(self.image, BLACK, (0, 0, x2 - x1 + thickness, thickness))
-        else:
-            print(x1, y1, x2, y2)
-            print("ERROR")
 
         self.rect = self.image.get_rect(topleft=(x1, y1))
         self.direction = -pygame.Vector2(x2 - x1, y2 - y1).rotate(90).normalize()

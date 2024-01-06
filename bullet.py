@@ -15,7 +15,6 @@ class Bullet(pygame.sprite.Sprite):
         self.player_owned = player_owned
         self.radius = 9
         self.speed = self.player_owned.speed * 1.5
-        self.lifetime = 10000
         self.image = pygame.Surface((2 * self.radius, 2 * self.radius),
                                     pygame.SRCALPHA)
         pygame.draw.circle(self.image, BLACK,
@@ -25,13 +24,13 @@ class Bullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=self.pos)
 
         self.timers = {
-            "time life": Timer(self.lifetime)
+            "time life": Timer(10000)
         }
         self.timers["time life"].activate()
         if pygame.sprite.spritecollideany(self, self.walls):
             self.kill()
             player_owned.kill()
-            self.level.change_score()
+            self.level.timers["wait round"].activate()
 
     def update(self, dt):
         self.update_timers()
@@ -61,7 +60,7 @@ class Bullet(pygame.sprite.Sprite):
                 if sprite in self.player_sprites:
                     self.kill()
                     sprite.kill()
-                    self.level.change_score()
+                    self.level.timers["wait round"].activate()
 
     def move(self, dt):
         try:
