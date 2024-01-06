@@ -181,7 +181,3 @@ class Player(pygame.sprite.Sprite):
         self.hit_box.centerx = round(self.pos.x)
         self.hit_box.centery = round(self.pos.y)
         self.rect.center = self.hit_box.center
-
-
-def is_collided_with(self, sprite):
-    return pygame.sprite.collide_mask(self, sprite)

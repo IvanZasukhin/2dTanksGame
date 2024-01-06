@@ -1,7 +1,6 @@
-import pygame
-
 from settings import *
 from timer import Timer
+import pygame.sprite
 
 
 class Bullet(pygame.sprite.Sprite):
