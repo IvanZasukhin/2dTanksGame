@@ -40,11 +40,15 @@ class Settings:
         self.game = game
         self.graphics_quality = 2
         self.fps = 60
+        self.clock = pygame.time.Clock()
+        self.stop = False
 
         if not screen:
             self.screen = pygame.display.set_mode(SCREEN_SIZE)
             self.graphics_quality = level.settings[0]
             self.fps = level.settings[1]
+
+        self.background_image = pygame_menu.BaseImage(image_path="data/background.jpg")
 
         self.settings = pygame_menu.Menu('Настройки', 400, 300,
                                          theme=MY_THEME, mouse_enabled=False)
@@ -52,16 +56,18 @@ class Settings:
                                    onchange=self.set_graphics_quality, default=self.graphics_quality)
         self.settings.add.selector('FPS:', [('30', 30), ('60', 60), ('120', 120)],
                                    onchange=self.set_fps, default=self.fps // 60)
-        self.settings.add.button('Назад', self.menu_init)
+        self.settings.add.button('Назад', self.back)
 
-        self.settings.mainloop(self.screen)
+        self.run()
 
-    def menu_init(self):
+    def back(self):
         if self.main_menu:
+            self.stop = True
             self.settings.disable()
         else:
             self.level.change_settings(self.graphics_quality, self.fps)
             self.game.fps = self.fps
+            self.stop = True
             self.settings.disable()
 
     def set_graphics_quality(self, *quality):
@@ -75,6 +81,19 @@ class Settings:
             self.main_menu.fps = fps[1]
         else:
             self.fps = fps[1]
+
+    def background(self):
+        self.background_image.draw(self.screen)
+
+    def run(self):
+        while True:
+            self.clock.tick(self.fps)
+            self.settings.mainloop(self.screen, self.background, fps_limit=self.fps)
+            pygame.display.flip()
+
+            if self.stop:
+                self.settings.disable()
+                break
 
 
 class Game:
@@ -94,6 +113,7 @@ class Game:
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
+                        pygame.image.save(self.screen, "data/background.jpg")
                         Settings(level=self.level, game=self)
             dt = self.clock.tick(self.fps) / 1000
             self.level.run(dt)
