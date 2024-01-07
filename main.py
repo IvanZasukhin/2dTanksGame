@@ -8,45 +8,73 @@ from settings import *
 
 class Menu:
     def __init__(self):
-        self.graphics_quality = 0
+        self.graphics_quality = 2
         self.fps = 60
 
         pygame.init()
         self.screen = pygame.display.set_mode((400, 300))
         pygame.display.set_caption('Танки 2D')
         self.menu = pygame_menu.Menu('Танки 2D', 400, 300,
-                                     theme=pygame_menu.themes.THEME_DEFAULT, mouse_enabled=False)
-        self.menu.add.button('Играть', self.start_the_game, selection_color=BLACK)
-        self.menu.add.button('Настройки', self.settings_init, selection_color=BLACK)
-        self.menu.add.button('Выйти', pygame_menu.events.EXIT, selection_color=BLACK)
+                                     theme=MY_THEME, mouse_enabled=False)
+        self.menu.add.button('Играть', self.start_the_game)
+        self.menu.add.button('Настройки', self.settings_init)
+        self.menu.add.button('Выйти', pygame_menu.events.EXIT)
 
-        self.settings = pygame_menu.Menu('Настройки', 400, 300,
-                                         theme=pygame_menu.themes.THEME_DEFAULT)
-        self.settings.add.selector('Графика:', [('Низкая', 0), ('Средняя', 1), ('Высокая', 2)],
-                                   onchange=self.set_graphics_quality, default=2, selection_color=BLACK)
-        self.settings.add.selector('FPS:', [('30', 30), ('60', 60), ('120', 120)],
-                                   onchange=self.set_fps, default=1, selection_color=BLACK)
-        self.settings.add.button('Назад', self.menu_init, selection_color=BLACK)
-
-        self.menu_init()
-
-    def settings_init(self):
-        self.settings.mainloop(self.screen)
-
-    def menu_init(self):
         self.menu.mainloop(self.screen)
 
-    def set_graphics_quality(self, *quality):
-        self.graphics_quality = quality[1]
-
-    def set_fps(self, *fps):
-        self.fps = fps[1]
+    def settings_init(self):
+        Settings(self.screen, self)
 
     def start_the_game(self):
         pygame.display.quit()
-        settings = (self.graphics_quality, self.fps)
+        settings = [self.graphics_quality, self.fps]
         game = Game(settings)
         game.run()
+
+
+class Settings:
+    def __init__(self, screen=None, main_menu=None, level=None, game=None):
+        self.screen = screen
+        self.main_menu = main_menu
+        self.level = level
+        self.game = game
+        self.graphics_quality = 2
+        self.fps = 60
+
+        if not screen:
+            self.screen = pygame.display.set_mode(SCREEN_SIZE)
+            self.graphics_quality = level.settings[0]
+            self.fps = level.settings[1]
+
+        self.settings = pygame_menu.Menu('Настройки', 400, 300,
+                                         theme=MY_THEME, mouse_enabled=False)
+        self.settings.add.selector('Графика:', [('Низкая', 0), ('Средняя', 1), ('Высокая', 2)],
+                                   onchange=self.set_graphics_quality, default=self.graphics_quality)
+        self.settings.add.selector('FPS:', [('30', 30), ('60', 60), ('120', 120)],
+                                   onchange=self.set_fps, default=self.fps // 60)
+        self.settings.add.button('Назад', self.menu_init)
+
+        self.settings.mainloop(self.screen)
+
+    def menu_init(self):
+        if self.main_menu:
+            self.settings.disable()
+        else:
+            self.level.change_settings(self.graphics_quality, self.fps)
+            self.game.fps = self.fps
+            self.settings.disable()
+
+    def set_graphics_quality(self, *quality):
+        if self.main_menu:
+            self.main_menu.graphics_quality = quality[1]
+        else:
+            self.graphics_quality = quality[1]
+
+    def set_fps(self, *fps):
+        if self.main_menu:
+            self.main_menu.fps = fps[1]
+        else:
+            self.fps = fps[1]
 
 
 class Game:
@@ -66,7 +94,7 @@ class Game:
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        Menu()
+                        Settings(level=self.level, game=self)
             dt = self.clock.tick(self.fps) / 1000
             self.level.run(dt)
             pygame.display.update()

@@ -3,7 +3,7 @@ from player import Player
 from settings import *
 from support import remove_walls
 from overlay import Overlay
-from random import randint, random
+from random import randint, uniform
 from timer import Timer
 
 
@@ -41,6 +41,10 @@ class Level:
         self.timers["wait round"].freeze = True
 
         self.new_lvl()
+
+    def change_settings(self, *parameters):
+        for i, param in enumerate(parameters):
+            self.settings[i] = param
 
     def new_lvl(self):
         self.overlay.start_animation()
@@ -119,8 +123,8 @@ class Level:
         y1 = randint(50, self.map_height - 50)
         x2 = randint(self.map_width // 2 + 25, self.map_width - 50)
         y2 = randint(50, self.map_height - 50)
-        vec1 = (random() - 1, random() - 1)
-        vec2 = (random() - 1, random() - 1)
+        vec1 = (uniform(-1, 1), uniform(-1, 1))
+        vec2 = (uniform(-1, 1), uniform(-1, 1))
         return (x1, y1), (x2, y2), vec1, vec2
 
     def run(self, dt):
