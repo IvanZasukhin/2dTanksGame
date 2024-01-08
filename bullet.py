@@ -1,4 +1,4 @@
-from settings import *
+from constants import *
 from timer import Timer
 import pygame.sprite
 
@@ -67,5 +67,3 @@ class Bullet(pygame.sprite.Sprite):
             self.direction.normalize_ip()
         self.pos += self.direction * dt * self.speed
         self.rect.center = self.pos
-
-

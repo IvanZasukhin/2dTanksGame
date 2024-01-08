@@ -1,5 +1,5 @@
 from pygame import font
-from settings import *
+from constants import *
 from timer import Timer
 
 

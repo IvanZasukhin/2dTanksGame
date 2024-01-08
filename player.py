@@ -2,7 +2,7 @@ import pygame.sprite
 
 from support import *
 from timer import Timer
-from settings import *
+from constants import *
 from bullet import Bullet
 
 
@@ -31,10 +31,8 @@ class Player(pygame.sprite.Sprite):
         self.direction_rotation = 0
         self.pos = pygame.Vector2(pos)
         self.direction = pygame.Vector2(vec)
-        try:
+        if self.direction:
             self.direction.normalize_ip()
-        except ValueError:
-            pass
         self.max_speed = 200
         self.speed = 200
         self.speed_angle = 0.5
@@ -119,10 +117,8 @@ class Player(pygame.sprite.Sprite):
         if movement_v.length() > 0:
             self.speed_animation = 15
             self.status = "forward"
-            try:
+            if movement_v:
                 movement_v.normalize_ip()
-            except ValueError:
-                pass
             self.pos += movement_v * dt * self.speed
             self.hit_box.centerx = round(self.pos.x)
             self.hit_box.centery = round(self.pos.y)

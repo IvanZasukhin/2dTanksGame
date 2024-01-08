@@ -3,7 +3,7 @@ import pygame
 import pygame_menu
 
 from level import Level
-from settings import *
+from constants import *
 from os import remove, path
 from support import get_settings
 
@@ -11,6 +11,7 @@ from support import get_settings
 class Menu:
     def __init__(self):
         self.graphics_quality, self.fps = get_settings()
+        self.settings_menu = None
 
         self.screen = pygame.display.set_mode((400, 300))
         pygame.display.set_caption('Танки 2D')
@@ -24,7 +25,10 @@ class Menu:
 
     def settings_init(self):
         pygame.image.save(self.screen, "data/background.jpg")
-        Settings(self.screen, self)
+        if self.settings_menu:
+            self.settings_menu.activate()
+        else:
+            self.settings_menu = Settings(self.screen, self)
 
     def start_the_game(self):
         pygame.display.quit()
@@ -59,6 +63,11 @@ class Settings:
 
         self.run()
 
+    def activate(self):
+        self.background_image = pygame_menu.BaseImage(image_path="data/background.jpg")
+        self.settings.enable()
+        self.run()
+
     def proceed(self):
         self.change_settings()
         get_settings()
@@ -87,8 +96,8 @@ class Settings:
         self.fps = fps[1]
 
     def change_settings(self):
-        with open('data/settings.txt', 'w') as file_setting:
-            file_setting.write(f'{self.graphics_quality}\n{self.fps}')
+        with open('data/settings.txt', 'w') as file_settings:
+            file_settings.write(f'{self.graphics_quality}\n{self.fps}')
 
     def background(self):
         self.background_image.draw(self.screen)
@@ -112,6 +121,7 @@ class Game:
         pygame.display.set_caption('Танки 2D')
         self.clock = pygame.time.Clock()
         self.level = Level()
+        self.settings_menu = None
 
     def run(self):
         while True:
@@ -122,7 +132,12 @@ class Game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         pygame.image.save(self.screen, "data/background.jpg")
-                        Settings(level=self.level, game=self)
+                        if self.settings_menu:
+                            self.settings_menu.activate()
+                        else:
+                            self.settings_menu = Settings(game=self, level=self.level)
+                            self.level.settings_menu = self.settings_menu
+
             dt = self.clock.tick(self.fps) / 1000
             self.level.run(dt)
             pygame.display.update()

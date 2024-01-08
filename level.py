@@ -1,6 +1,6 @@
 from map import *
 from player import Player
-from settings import *
+from constants import *
 from support import remove_walls
 from overlay import Overlay
 from random import randint, uniform
@@ -13,6 +13,7 @@ class Level:
         self.settings = get_settings()
         # окно
         self.screen = pygame.display.get_surface()
+        self.settings_menu = None
         # карта
         self.grid_cells = []
         self.stack = []

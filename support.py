@@ -1,12 +1,11 @@
-import os
-
+from os import walk
 from pygame import image, transform
-from settings import *
+from constants import *
 
 
 def import_image(path, graphics_quality):
     surface_list = []
-    for _, _, image_files in os.walk(path):
+    for _, _, image_files in walk(path):
         for im in image_files:
             fullname = path + "/" + im
             im = image.load(fullname).convert_alpha()
