@@ -25,11 +25,11 @@ class Level:
         self.red_wins = 0
         self.round = 0
         self.overlay.timers["animation"].freeze = True
-
         # спрайты
         self.all_sprites = pygame.sprite.Group()
         self.player_sprites = pygame.sprite.Group()
         self.walls = pygame.sprite.Group()
+        self.control_buttons = [[key for key in plyer_id.values()] for plyer_id in MANAGEMENT.values()]
         # генерация
         for y in range(self.rows):
             for x in range(self.cols):
@@ -102,7 +102,11 @@ class Level:
                 self.blue_wins += 1
             elif self.player_sprites.sprites()[0].player_number == 2:
                 self.red_wins += 1
-            self.player_sprites.sprites()[0].kill()
+            for bullet_sprite in self.player_sprites.sprites()[0].bullet_sprites.sprites():
+                bullet_sprite.kill()
+            for player in self.player_sprites.sprites():
+                player.kill()
+
         self.new_lvl()
 
     def setup(self):
@@ -141,4 +145,5 @@ class Level:
     def update_timers(self):
         for timer in self.timers.values():
             timer.update()
-# TODO: сделать отдельно принятие клавиши и заблокировать с помощью self.overlay.check_animation()
+
+    # TODO: сделать отдельно принятие клавиши и заблокировать с помощью self.overlay.check_animation()

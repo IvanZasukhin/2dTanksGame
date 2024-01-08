@@ -27,9 +27,7 @@ class Bullet(pygame.sprite.Sprite):
         }
         self.timers["time life"].activate()
         if pygame.sprite.spritecollideany(self, self.walls):
-            self.kill()
-            player_owned.kill()
-            self.level.timers["wait round"].activate()
+            self.start_new_round(player_owned)
 
     def update(self, dt):
         self.update_timers()
@@ -57,14 +55,17 @@ class Bullet(pygame.sprite.Sprite):
         for sprite in self.player_sprites.sprites():
             if sprite.is_collided_with(self):
                 if sprite in self.player_sprites:
-                    self.kill()
-                    sprite.kill()
-                    self.level.timers["wait round"].activate()
+                    self.start_new_round(sprite)
+
+    def start_new_round(self, sprite):
+        self.kill()
+        sprite.kill()
+        self.level.timers["wait round"].activate()
 
     def move(self, dt):
-        try:
+        if self.direction:
             self.direction.normalize_ip()
-        except ValueError:
-            pass
         self.pos += self.direction * dt * self.speed
         self.rect.center = self.pos
+
+

@@ -90,7 +90,6 @@ class Settings:
             self.clock.tick(self.fps)
             self.settings.mainloop(self.screen, self.background, fps_limit=self.fps)
             pygame.display.flip()
-
             if self.stop:
                 self.settings.disable()
                 break
