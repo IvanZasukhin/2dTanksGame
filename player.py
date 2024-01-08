@@ -27,14 +27,13 @@ class Player(pygame.sprite.Sprite):
         self.import_animation()
         # Движение
         self.old_direction = 0
-        self.movement = 0
         self.direction_rotation = 0
         self.pos = pygame.Vector2(pos)
         self.direction = pygame.Vector2(vec)
         if self.direction:
             self.direction.normalize_ip()
         self.max_speed = 200
-        self.speed = 200
+        self.speed = 0
         self.speed_angle = 0.5
         # настройки изображения
         self.player_zoom = PLAYER_ZOOM
@@ -66,12 +65,12 @@ class Player(pygame.sprite.Sprite):
     def input(self):
         keys = pygame.key.get_pressed()
         self.old_direction = self.direction.copy()
-        self.movement = 0
+        self.speed = 0
         self.direction_rotation = 0
         if keys[self.MANAGEMENT["up"]]:
-            self.movement = 1
+            self.speed = self.max_speed
         elif keys[self.MANAGEMENT["down"]]:
-            self.movement = -1
+            self.speed = -self.max_speed
         if keys[self.MANAGEMENT["left"]]:
             self.direction_rotation = -1
         elif keys[self.MANAGEMENT["right"]]:
@@ -85,9 +84,7 @@ class Player(pygame.sprite.Sprite):
         maximum_bullets = 10
         if len(self.bullet_sprites) != maximum_bullets:
             Bullet(self.level, (self.pos.x, self.pos.y), -self.direction, self, self.player_sprites,
-                   self.walls,
-                   self.all_sprites,
-                   self.bullet_sprites)
+                   self.walls, self.all_sprites, self.bullet_sprites)
 
     def update_timers(self):
         for timer in self.timers.values():
@@ -113,16 +110,11 @@ class Player(pygame.sprite.Sprite):
             self.status = "right"
         self.direction = self.direction.rotate(dt * 360 * self.speed_angle * self.direction_rotation)
         # Движение
-        movement_v = -self.direction * self.movement
+        movement_v = (-self.direction * self.speed)
         if movement_v.length() > 0:
             self.speed_animation = 15
             self.status = "forward"
-            if movement_v:
-                movement_v.normalize_ip()
-            self.pos += movement_v * dt * self.speed
-            self.hit_box.centerx = round(self.pos.x)
-            self.hit_box.centery = round(self.pos.y)
-            self.rect.center = self.hit_box.center
+            self.movement(dt, movement_v)
 
     def animation(self, dt):
         self.frame += self.speed_animation * dt
@@ -147,11 +139,11 @@ class Player(pygame.sprite.Sprite):
     def collision(self, dt):
         for sprite in self.walls.sprites():
             if sprite.is_collided_with(self):
-                movement_v = -self.direction * self.movement
-                self.movement_collision(dt, movement_v)
+                movement_v = -self.direction
+                self.movement(dt, -movement_v)
             if self is not sprite and sprite.is_collided_with(self):
-                movement_v = -self.direction * self.movement
-                self.movement_collision(dt, movement_v)
+                movement_v = -self.direction * self.speed
+                self.movement(dt, -movement_v)
 
     def collision_turn(self, dt):
         for sprite in self.walls.sprites():
@@ -170,8 +162,8 @@ class Player(pygame.sprite.Sprite):
     def is_collided_with(self, sprite):
         return pygame.sprite.collide_mask(self, sprite)
 
-    def movement_collision(self, dt, movement_v):
-        self.pos -= movement_v * dt * self.speed
+    def movement(self, dt, movement_v):
+        self.pos += movement_v * dt
         self.hit_box.centerx = round(self.pos.x)
         self.hit_box.centery = round(self.pos.y)
         self.rect.center = self.hit_box.center

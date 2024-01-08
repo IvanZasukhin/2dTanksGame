@@ -13,7 +13,7 @@ class Bullet(pygame.sprite.Sprite):
         self.direction = direction
         self.player_owned = player_owned
         self.radius = 9
-        self.speed = self.player_owned.speed * 1.5
+        self.speed = self.player_owned.max_speed * 1.5
         self.image = pygame.Surface((2 * self.radius, 2 * self.radius),
                                     pygame.SRCALPHA)
         pygame.draw.circle(self.image, BLACK,
@@ -52,6 +52,7 @@ class Bullet(pygame.sprite.Sprite):
                 if sprite.is_collided_with(self):
                     self.direction.reflect_ip(sprite.direction.rotate(90))
                     self.move(dt)
+                break
         for sprite in self.player_sprites.sprites():
             if sprite.is_collided_with(self):
                 if sprite in self.player_sprites:
