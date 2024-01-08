@@ -7,7 +7,7 @@ RED = Color('red')
 BLUE = Color('blue')
 WHITE = Color('white')
 GRAY = Color('gray')
-DARKGRAY = Color('darkgray')
+DARKGRAY = Color("darkgray")
 MY_THEME = themes.THEME_DEFAULT.copy()
 MY_THEME.selection_color = BLACK
 MY_THEME.widget_selection_effect.set_background_color(DARKGRAY)

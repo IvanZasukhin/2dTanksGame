@@ -96,7 +96,8 @@ class Player(pygame.sprite.Sprite):
             timer.update()
 
     def update(self, dt):
-        self.input()
+        if self.level.overlay.check_animation():
+            self.input()
         self.move(dt)
         self.animation(dt)
         self.collision_turn(dt)

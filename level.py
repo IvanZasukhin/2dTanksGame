@@ -5,11 +5,12 @@ from support import remove_walls
 from overlay import Overlay
 from random import randint, uniform
 from timer import Timer
+from support import get_settings
 
 
 class Level:
     def __init__(self):
-        self.settings = self.get_settings()
+        self.settings = get_settings()
         # окно
         self.screen = pygame.display.get_surface()
         # карта
@@ -25,7 +26,6 @@ class Level:
         self.red_wins = 0
         self.round = 0
         self.overlay.timers["animation"].freeze = True
-
         # спрайты
         self.all_sprites = pygame.sprite.Group()
         self.player_sprites = pygame.sprite.Group()
@@ -41,10 +41,6 @@ class Level:
         self.timers["wait round"].freeze = True
 
         self.new_lvl()
-
-    def get_settings(self):
-        with open('data/settings.txt', 'r') as file:
-            return [int(line.strip()) for line in file.readlines()]
 
     def new_lvl(self):
         self.overlay.start_animation()
@@ -134,11 +130,9 @@ class Level:
         self.overlay.display(self.round, self.blue_wins, self.red_wins)
         self.overlay.update_timers()
         self.all_sprites.draw(self.screen)
-        if self.overlay.check_animation():
-            self.all_sprites.update(dt)
+        self.all_sprites.update(dt)
         self.update_timers()
 
     def update_timers(self):
         for timer in self.timers.values():
             timer.update()
-# TODO: сделать отдельно принятие клавиши и заблокировать с помощью self.overlay.check_animation()

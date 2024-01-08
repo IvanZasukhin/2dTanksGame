@@ -5,11 +5,12 @@ import pygame_menu
 from level import Level
 from settings import *
 from os import remove, path
+from support import get_settings
 
 
 class Menu:
     def __init__(self):
-        self.graphics_quality, self.fps = self.get_settings()
+        self.graphics_quality, self.fps = get_settings()
 
         self.screen = pygame.display.set_mode((400, 300))
         pygame.display.set_caption('Танки 2D')
@@ -20,10 +21,6 @@ class Menu:
         self.menu.add.button('Выйти', pygame_menu.events.EXIT)
 
         self.menu.mainloop(self.screen)
-
-    def get_settings(self):
-        with open('data/settings.txt', 'r') as file:
-            return [int(line.strip()) for line in file.readlines()]
 
     def settings_init(self):
         pygame.image.save(self.screen, "data/background.jpg")
@@ -42,7 +39,7 @@ class Settings:
         self.main_menu = main_menu
         self.level = level
         self.game = game
-        self.graphics_quality, self.fps = self.get_settings()
+        self.graphics_quality, self.fps = get_settings()
         self.clock = pygame.time.Clock()
         self.stop = False
 
@@ -62,13 +59,9 @@ class Settings:
 
         self.run()
 
-    def get_settings(self):
-        with open('data/settings.txt', 'r') as file:
-            return [int(line.strip()) for line in file.readlines()]
-
     def proceed(self):
         self.change_settings()
-        self.level.get_settings()
+        get_settings()
         self.game.fps = self.fps
         self.stop = True
         self.settings.disable()
@@ -94,8 +87,8 @@ class Settings:
         self.fps = fps[1]
 
     def change_settings(self):
-        with open('data/settings.txt', 'w') as file:
-            file.write(f'{self.graphics_quality}\n{self.fps}')
+        with open('data/settings.txt', 'w') as file_setting:
+            file_setting.write(f'{self.graphics_quality}\n{self.fps}')
 
     def background(self):
         self.background_image.draw(self.screen)

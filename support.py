@@ -17,6 +17,11 @@ def import_image(path, graphics_quality):
     return surface_list
 
 
+def get_settings():
+    with open('data/settings.txt', 'r') as file:
+        return [int(line.strip()) for line in file.readlines()]
+
+
 def remove_walls(current, next_walls):
     dx = current.x - next_walls.x
     if dx == 1:
