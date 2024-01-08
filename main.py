@@ -4,14 +4,13 @@ import pygame_menu
 
 from level import Level
 from settings import *
+from os import remove, path
 
 
 class Menu:
     def __init__(self):
-        self.graphics_quality = 2
-        self.fps = 60
+        self.graphics_quality, self.fps = self.get_settings()
 
-        pygame.init()
         self.screen = pygame.display.set_mode((400, 300))
         pygame.display.set_caption('Танки 2D')
         self.menu = pygame_menu.Menu('Танки 2D', 400, 300,
@@ -22,7 +21,12 @@ class Menu:
 
         self.menu.mainloop(self.screen)
 
+    def get_settings(self):
+        with open('data/settings.txt', 'r') as file:
+            return [int(line.strip()) for line in file.readlines()]
+
     def settings_init(self):
+        pygame.image.save(self.screen, "data/background.jpg")
         Settings(self.screen, self)
 
     def start_the_game(self):
@@ -38,49 +42,60 @@ class Settings:
         self.main_menu = main_menu
         self.level = level
         self.game = game
-        self.graphics_quality = 2
-        self.fps = 60
+        self.graphics_quality, self.fps = self.get_settings()
         self.clock = pygame.time.Clock()
         self.stop = False
 
-        if not screen:
-            self.screen = pygame.display.set_mode(SCREEN_SIZE)
-            self.graphics_quality = level.settings[0]
-            self.fps = level.settings[1]
-
-        self.background_image = pygame_menu.BaseImage(image_path="data/background.jpg")
-
         self.settings = pygame_menu.Menu('Настройки', 400, 300,
                                          theme=MY_THEME, mouse_enabled=False)
+        self.background_image = pygame_menu.BaseImage(image_path="data/background.jpg")
+
+        if game:
+            self.screen = pygame.display.set_mode(SCREEN_SIZE)
+            self.settings.add.button('Продолжить', self.proceed)
+
         self.settings.add.selector('Графика:', [('Низкая', 0), ('Средняя', 1), ('Высокая', 2)],
                                    onchange=self.set_graphics_quality, default=self.graphics_quality)
         self.settings.add.selector('FPS:', [('30', 30), ('60', 60), ('120', 120)],
                                    onchange=self.set_fps, default=self.fps // 60)
-        self.settings.add.button('Назад', self.back)
+        self.settings.add.button('Главное меню', self.back_to_main)
 
         self.run()
 
-    def back(self):
+    def get_settings(self):
+        with open('data/settings.txt', 'r') as file:
+            return [int(line.strip()) for line in file.readlines()]
+
+    def proceed(self):
+        self.change_settings()
+        self.level.get_settings()
+        self.game.fps = self.fps
+        self.stop = True
+        self.settings.disable()
+        remove('data/background.jpg')
+
+    def back_to_main(self):
+        self.change_settings()
         if self.main_menu:
             self.stop = True
             self.settings.disable()
         else:
-            self.level.change_settings(self.graphics_quality, self.fps)
-            self.game.fps = self.fps
             self.stop = True
             self.settings.disable()
+            pygame.display.quit()
+            remove('data/background.jpg')
+            Menu()
+        remove('data/background.jpg')
 
     def set_graphics_quality(self, *quality):
-        if self.main_menu:
-            self.main_menu.graphics_quality = quality[1]
-        else:
-            self.graphics_quality = quality[1]
+        self.graphics_quality = quality[1]
 
     def set_fps(self, *fps):
-        if self.main_menu:
-            self.main_menu.fps = fps[1]
-        else:
-            self.fps = fps[1]
+        self.fps = fps[1]
+
+    def change_settings(self):
+        with open('data/settings.txt', 'w') as file:
+            file.write(f'{self.graphics_quality}\n{self.fps}')
 
     def background(self):
         self.background_image.draw(self.screen)
@@ -90,6 +105,7 @@ class Settings:
             self.clock.tick(self.fps)
             self.settings.mainloop(self.screen, self.background, fps_limit=self.fps)
             pygame.display.flip()
+
             if self.stop:
                 self.settings.disable()
                 break
@@ -102,7 +118,7 @@ class Game:
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
         pygame.display.set_caption('Танки 2D')
         self.clock = pygame.time.Clock()
-        self.level = Level(settings)
+        self.level = Level()
 
     def run(self):
         while True:
@@ -121,4 +137,10 @@ class Game:
 
 
 if __name__ == '__main__':
-    menu = Menu()
+    pygame.init()
+    with open('data/settings.txt') as file:
+        if not file.read():
+            file.write(f'2\n60')
+    Menu()
+    if path.exists('data/background.jpg'):
+        remove('data/background.jpg')
