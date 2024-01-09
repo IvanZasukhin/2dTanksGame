@@ -26,6 +26,7 @@ class Player(pygame.sprite.Sprite):
         self.frame = 0
         self.import_animation()
         # Движение
+        self.maximum_bullets = 100
         self.old_direction = 0
         self.direction_rotation = 0
         self.pos = pygame.Vector2(pos)
@@ -81,8 +82,8 @@ class Player(pygame.sprite.Sprite):
 
     def use_attack(self):
         self.timers["use attack"].activate()
-        maximum_bullets = 10
-        if len(self.bullet_sprites) != maximum_bullets:
+
+        if len(self.bullet_sprites) != self.maximum_bullets:
             Bullet(self.level, (self.pos.x, self.pos.y), -self.direction, self, self.player_sprites,
                    self.walls, self.all_sprites, self.bullet_sprites)
 
