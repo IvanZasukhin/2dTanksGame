@@ -10,17 +10,22 @@ from support import get_settings
 
 class Menu:
     def __init__(self):
-        self.graphics_quality, self.fps = get_settings()
         self.settings_menu = None
+        self.game_selection = None
 
         self.screen = pygame.display.set_mode((400, 300))
         pygame.display.set_caption('Танки 2D')
         self.menu = pygame_menu.Menu('Танки 2D', 400, 300,
                                      theme=MY_THEME, mouse_enabled=False)
         self.menu.add.button('Играть', self.start_the_game)
+
         self.menu.add.button('Настройки', self.settings_init)
         self.menu.add.button('Выйти', pygame_menu.events.EXIT)
 
+        self.menu.mainloop(self.screen)
+
+    def activate(self):
+        self.menu.enable()
         self.menu.mainloop(self.screen)
 
     def settings_init(self):
@@ -31,9 +36,52 @@ class Menu:
             self.settings_menu = Settings(self.screen, self)
 
     def start_the_game(self):
+        if self.game_selection:
+            self.game_selection.activate()
+        else:
+            self.game_selection = GameSelection(self.screen)
+
+
+class GameSelection:
+    def __init__(self, screen):
+        self.screen = screen
+        self.max_round, self.selected_game = get_settings()[2:]
+
+        self.menu = pygame_menu.Menu('Выбор уровня', 400, 300,
+                                     theme=MY_THEME, mouse_enabled=False)
+        self.menu.add.button('Играть', self.start_game)
+        self.menu.add.selector('Раундов: ', [('3', 3), ('5', 5), ('10', 10), ('15', 15)], default=1,
+                               onchange=self.set_rounds_count)
+        self.menu.add.selector('Уровень: ', [('Со стенами', 1), ('Без стен', 0)],
+                               onchange=self.set_selected_game)
+        self.menu.add.button('Главное меню', self.back_to_main)
+
+        self.menu.mainloop(self.screen)
+
+    def activate(self):
+        self.menu.enable()
+        self.menu.mainloop(self.screen)
+
+    def back_to_main(self):
+        self.change_game_settings()
+        self.menu.disable()
+
+    def set_rounds_count(self, *max_round):
+        self.max_round = max_round[1]
+
+    def set_selected_game(self, *selected_game):
+        self.selected_game = selected_game[1]
+
+    def change_game_settings(self):
+        settings = get_settings()[:2]
+        with open('data/settings.txt', 'w') as file_settings:
+            file_settings.write(f'{settings[0]}\n{settings[1]}\n{self.max_round}\n{self.selected_game}')
+
+    def start_game(self):
+        self.menu.disable()
+        self.change_game_settings()
         pygame.display.quit()
-        settings = [self.graphics_quality, self.fps]
-        game = Game(settings)
+        game = Game()
         game.run()
 
 
@@ -43,7 +91,7 @@ class Settings:
         self.main_menu = main_menu
         self.level = level
         self.game = game
-        self.graphics_quality, self.fps = get_settings()
+        self.graphics_quality, self.fps = get_settings()[:2]
         self.clock = pygame.time.Clock()
         self.stop = False
 
@@ -96,8 +144,9 @@ class Settings:
         self.fps = fps[1]
 
     def change_settings(self):
-        with open('data/settings.txt', 'w') as file_settings:
-            file_settings.write(f'{self.graphics_quality}\n{self.fps}')
+        settings = get_settings()[2:]
+        with open('data/settings.txt', 'r+') as file_settings:
+            file_settings.write(f'{self.graphics_quality}\n{self.fps}\n{settings[0]}\n{settings[1]}')
 
     def background(self):
         self.background_image.draw(self.screen)
@@ -114,8 +163,8 @@ class Settings:
 
 
 class Game:
-    def __init__(self, settings):
-        self.fps = settings[1]
+    def __init__(self):
+        self.fps = get_settings()[1]
 
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
         pygame.display.set_caption('Танки 2D')
@@ -146,9 +195,9 @@ class Game:
 
 if __name__ == '__main__':
     pygame.init()
-    with open('data/settings.txt') as file:
-        if not file.read():
-            file.write(f'2\n60')
+    with open('data/settings.txt', 'r+') as file:
+        if not file.read().strip():
+            file.write(f'2\n60\n5\n1')
     Menu()
     if path.exists('data/background.jpg'):
         remove('data/background.jpg')
