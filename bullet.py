@@ -4,9 +4,11 @@ import pygame.sprite
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, level, pos, direction, player_owned, player_sprites, walls, *groups):
-        super().__init__(*groups)
+    def __init__(self, level, pos, direction, player_owned, player_sprites, walls, all_sprites, bullet_sprites,
+                 time_life=1000):
+        super().__init__(all_sprites, bullet_sprites)
         self.level = level
+        self.bullet_sprites = bullet_sprites
         self.round = level.round
         self.walls = walls
         self.player_sprites = player_sprites
@@ -22,9 +24,8 @@ class Bullet(pygame.sprite.Sprite):
         self.pos = pygame.Vector2(pos[0] + direction.x, pos[1] + direction.y)
         self.rect = self.image.get_rect(center=self.pos)
         self.hit_box = self.rect.copy()
-
         self.timers = {
-            "time life": Timer(10000)
+            "time life": Timer(time_life)
         }
         self.timers["time life"].activate()
         if pygame.sprite.spritecollideany(self, self.walls):

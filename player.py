@@ -96,8 +96,8 @@ class Player(pygame.sprite.Sprite):
             self.input()
         self.move(dt)
         self.animation(dt)
-        self.collision_turn(dt)
         self.collision(dt)
+        self.collision_turn(dt)
         self.update_timers()
 
     def move(self, dt):
@@ -140,11 +140,14 @@ class Player(pygame.sprite.Sprite):
     def collision(self, dt):
         for sprite in self.walls.sprites():
             if sprite.is_collided_with(self):
-                movement_v = -self.direction
+                movement_v = -self.direction * self.speed
                 self.movement(dt, -movement_v)
+                break
+        for sprite in self.player_sprites.sprites():
             if self is not sprite and sprite.is_collided_with(self):
                 movement_v = -self.direction * self.speed
                 self.movement(dt, -movement_v)
+                break
 
     def collision_turn(self, dt):
         for sprite in self.walls.sprites():

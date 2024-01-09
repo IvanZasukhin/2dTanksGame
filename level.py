@@ -44,15 +44,15 @@ class Level:
         self.new_lvl()
 
     def new_lvl(self):
-        self.overlay.start_animation()
+        for sprite in self.all_sprites:
+            sprite.kill()
         self.generation()
         self.setup()
+        self.overlay.start_animation()
 
     def generation(self):
         self.round += 1
         self.stack.clear()
-        for wall in self.walls:
-            wall.kill()
 
         for cell in self.grid_cells:
             cell.walls['top'] = True
@@ -99,7 +99,6 @@ class Level:
                 self.blue_wins += 1
             elif self.player_sprites.sprites()[0].player_number == 2:
                 self.red_wins += 1
-            self.player_sprites.sprites()[0].kill()
         self.new_lvl()
 
     def setup(self):
@@ -126,14 +125,31 @@ class Level:
 
     def run(self, dt):
         self.screen.fill(WHITE)
-        for cell in self.grid_cells:
-            cell.draw()
+        pygame.draw.rect(self.screen, GRAY, (0, 0, self.cols * self.tile, self.rows * self.tile))
         self.overlay.display(self.round, self.blue_wins, self.red_wins)
-        self.overlay.update_timers()
         self.all_sprites.draw(self.screen)
+
         self.all_sprites.update(dt)
+        self.overlay.update_timers()
         self.update_timers()
 
     def update_timers(self):
         for timer in self.timers.values():
             timer.update()
+
+
+class Level1(Level):
+    def generation(self):
+        self.round += 1
+        self.stack.clear()
+        Border(0, 0, 0, self.rows * self.tile, self.all_sprites, self.walls)
+        Border(0, 0, self.cols * self.tile, 0, self.all_sprites, self.walls)
+        Border(self.cols * self.tile, 0, self.cols * self.tile, self.rows * self.tile, self.all_sprites, self.walls)
+        Border(0, self.rows * self.tile, self.cols * self.tile, self.rows * self.tile, self.all_sprites, self.walls)
+
+    def setup(self):
+        Player(self, self.settings, (self.map_width / 4, self.map_height / 2), (-1, 0),
+               1, self.all_sprites, self.player_sprites, self.walls)
+        Player(self, self.settings, (self.map_width / 1.25, self.map_height / 2), (1, 0),
+               2, self.all_sprites, self.player_sprites, self.walls)
+

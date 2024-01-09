@@ -3,6 +3,7 @@ import pygame
 import pygame_menu
 
 from level import Level
+from level import Level1
 from constants import *
 from os import remove, path
 from support import get_settings
@@ -16,7 +17,7 @@ class Menu:
         self.screen = pygame.display.set_mode((400, 300))
         pygame.display.set_caption('Танки 2D')
         self.menu = pygame_menu.Menu('Танки 2D', 400, 300,
-                                     theme=MY_THEME, mouse_enabled=False)
+                                     theme=MY_THEME, mouse_enabled=False, mouse_visible=False)
         self.menu.add.button('Играть', self.start_the_game)
 
         self.menu.add.button('Настройки', self.settings_init)
@@ -96,7 +97,7 @@ class Settings:
         self.stop = False
 
         self.settings = pygame_menu.Menu('Настройки', 400, 300,
-                                         theme=MY_THEME, mouse_enabled=False)
+                                         theme=MY_THEME, mouse_enabled=False, mouse_visible=False)
         self.background_image = pygame_menu.BaseImage(image_path="data/background.jpg")
 
         if game:
@@ -118,6 +119,7 @@ class Settings:
 
     def proceed(self):
         self.change_settings()
+        self.level.settings[0], self.level.settings[1] = get_settings()
         get_settings()
         self.game.fps = self.fps
         self.stop = True
@@ -153,13 +155,12 @@ class Settings:
 
     def run(self):
         while True:
-            self.clock.tick(self.fps)
-            self.settings.mainloop(self.screen, self.background, fps_limit=self.fps)
-            pygame.display.flip()
-
             if self.stop:
                 self.settings.disable()
                 break
+            self.clock.tick(self.fps)
+            self.settings.mainloop(self.screen, self.background, fps_limit=self.fps)
+            pygame.display.flip()
 
 
 class Game:
@@ -169,7 +170,7 @@ class Game:
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
         pygame.display.set_caption('Танки 2D')
         self.clock = pygame.time.Clock()
-        self.level = Level()
+        self.level = Level1()
         self.settings_menu = None
 
     def run(self):
@@ -189,6 +190,7 @@ class Game:
 
             dt = self.clock.tick(self.fps) / 1000
             self.level.run(dt)
+            pygame.mouse.set_visible(False)
             pygame.display.update()
             pygame.display.set_caption("FPS: " + str(int(self.clock.get_fps())))  # FPS
 
