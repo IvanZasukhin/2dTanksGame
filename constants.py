@@ -8,10 +8,17 @@ BLUE = Color('blue')
 WHITE = Color('white')
 GRAY = Color('gray')
 DARKGRAY = Color("darkgray")
+GREEN = Color('green')
+PURPLE = Color('purple')
+
 MY_THEME = themes.THEME_DEFAULT.copy()
 MY_THEME.selection_color = BLACK
 MY_THEME.widget_selection_effect.set_background_color(DARKGRAY)
-PLAYER_ZOOM = 0.125
+
+PLAYER_SCALE = 0.125
+PLAYER_MAX_SPEED = 200
+RADIUS_BULLET = 9
+
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = (875, 775)
 MANAGEMENT = {
     1: {"left": K_a, "right": K_d, "up": K_w,

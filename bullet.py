@@ -5,7 +5,7 @@ import pygame.sprite
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, level, pos, direction, player_owned, player_sprites, walls, all_sprites, bullet_sprites,
-                 time_life=1000):
+                 time_life=500):
         super().__init__(all_sprites, bullet_sprites)
         self.level = level
         self.bullet_sprites = bullet_sprites
@@ -14,13 +14,12 @@ class Bullet(pygame.sprite.Sprite):
         self.player_sprites = player_sprites
         self.direction = direction
         self.player_owned = player_owned
-        self.radius = 9
         self.speed = self.player_owned.max_speed * 1.5
-        self.image = pygame.Surface((2 * self.radius, 2 * self.radius),
+        self.image = pygame.Surface((2 * RADIUS_BULLET, 2 * RADIUS_BULLET),
                                     pygame.SRCALPHA)
         pygame.draw.circle(self.image, BLACK,
-                           (self.radius, self.radius), self.radius)
-        direction.scale_to_length(38 + self.radius)
+                           (RADIUS_BULLET, RADIUS_BULLET), RADIUS_BULLET)
+        direction.scale_to_length(38 + RADIUS_BULLET)
         self.pos = pygame.Vector2(pos[0] + direction.x, pos[1] + direction.y)
         self.rect = self.image.get_rect(center=self.pos)
         self.hit_box = self.rect.copy()
@@ -34,8 +33,8 @@ class Bullet(pygame.sprite.Sprite):
     def update(self, dt):
         self.update_timers()
         self.check_life_bullet()
-        self.check_collision(dt)
         self.move(dt, self.direction)
+        self.check_collision(dt)
 
     def update_timers(self):
         for timer in self.timers.values():
@@ -52,8 +51,9 @@ class Bullet(pygame.sprite.Sprite):
                     self.direction.reflect_ip(sprite.direction)
                 self.move(dt, self.direction)
                 if sprite.is_collided_with(self):
-                    self.direction.reflect_ip(sprite.direction)
-                    self.direction.reflect_ip(sprite.direction.rotate(90))
+                    self.direction = self.direction.rotate(180)
+                    self.move(dt, self.direction)
+                while sprite.is_collided_with(self):
                     self.move(dt, self.direction)
                 break
         for sprite in self.player_sprites.sprites():

@@ -33,22 +33,16 @@ class Player(pygame.sprite.Sprite):
         self.direction = pygame.Vector2(vec)
         if self.direction:
             self.direction.normalize_ip()
-        self.max_speed = 200
+        self.max_speed = PLAYER_MAX_SPEED
         self.speed = 0
         self.speed_angle = 0.5
         # настройки изображения
-        self.player_zoom = PLAYER_ZOOM
         self.image = self.animations[self.status][self.frame]
         self.orig_image = self.animations[self.status][0]
         angle = self.direction.angle_to((0, -1))
         self.image = pygame.transform.rotate(self.image, angle)
         self.orig_image = pygame.transform.rotate(self.orig_image, angle)
-        if self.graphics_quality == 1:
-            self.image = pygame.transform.scale_by(self.image, self.player_zoom)
-            self.orig_image = pygame.transform.scale_by(self.orig_image, self.player_zoom)
-        elif self.graphics_quality == 2:
-            self.image = pygame.transform.smoothscale_by(self.image, self.player_zoom)
-            self.orig_image = pygame.transform.scale_by(self.orig_image, self.player_zoom)
+        self.zoom()
         self.rect = self.image.get_rect(center=pos)
         self.hit_box = self.rect.copy()
         self.mask = pygame.mask.from_surface(self.orig_image)
@@ -82,7 +76,6 @@ class Player(pygame.sprite.Sprite):
 
     def use_attack(self):
         self.timers["use attack"].activate()
-
         if len(self.bullet_sprites) != self.maximum_bullets:
             Bullet(self.level, (self.pos.x, self.pos.y), -self.direction, self, self.player_sprites,
                    self.walls, self.all_sprites, self.bullet_sprites)
@@ -123,19 +116,22 @@ class Player(pygame.sprite.Sprite):
             self.frame = 0
         self.image = self.animations[self.status][int(self.frame)]
         angle = self.direction.angle_to((0, -1))
-        self.rotate_player(angle)
+        self.rotate(angle)
 
-    def rotate_player(self, angle):
+    def rotate(self, angle):
         self.image = pygame.transform.rotate(self.animations[self.status][int(self.frame)], angle)
         self.orig_image = pygame.transform.rotate(self.animations[self.status][0], angle)
-        if self.graphics_quality == 1:
-            self.image = pygame.transform.scale_by(self.image, self.player_zoom)
-            self.orig_image = pygame.transform.scale_by(self.orig_image, self.player_zoom)
-        elif self.graphics_quality == 2:
-            self.image = pygame.transform.smoothscale_by(self.image, self.player_zoom)
-            self.orig_image = pygame.transform.scale_by(self.orig_image, self.player_zoom)
+        self.zoom()
         self.mask = pygame.mask.from_surface(self.orig_image)
         self.rect = self.image.get_rect(center=self.hit_box.center)
+
+    def zoom(self):
+        if self.graphics_quality == 1:
+            self.image = pygame.transform.scale_by(self.image, PLAYER_SCALE)
+            self.orig_image = pygame.transform.scale_by(self.orig_image, PLAYER_SCALE)
+        elif self.graphics_quality == 2:
+            self.image = pygame.transform.smoothscale_by(self.image, PLAYER_SCALE)
+            self.orig_image = pygame.transform.scale_by(self.orig_image, PLAYER_SCALE)
 
     def collision(self, dt):
         for sprite in self.walls.sprites():
@@ -155,13 +151,13 @@ class Player(pygame.sprite.Sprite):
                 if self.old_direction != self.direction:
                     self.direction = self.direction.rotate(dt * 360 * self.speed_angle * -self.direction_rotation)
                     angle = self.direction.angle_to((0, -1))
-                    self.rotate_player(angle)
+                    self.rotate(angle)
         for sprite in self.player_sprites.sprites():
             if self is not sprite and sprite.is_collided_with(self):
                 if self.old_direction != self.direction:
                     self.direction = self.direction.rotate(dt * 360 * self.speed_angle * -self.direction_rotation)
                     angle = self.direction.angle_to((0, -1))
-                    self.rotate_player(angle)
+                    self.rotate(angle)
 
     def is_collided_with(self, sprite):
         return pygame.sprite.collide_mask(self, sprite)
@@ -171,3 +167,8 @@ class Player(pygame.sprite.Sprite):
         self.hit_box.centerx = round(self.pos.x)
         self.hit_box.centery = round(self.pos.y)
         self.rect.center = self.hit_box.center
+
+    def get_boost(self, name_boost):
+        print(name_boost)
+        if name_boost == "speed boost":
+            self.max_speed = self.max_speed * 2

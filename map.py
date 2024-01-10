@@ -14,11 +14,6 @@ class Cell:
         self.TILE = tile
         self.cols, self.rows = cols, rows
 
-    def draw(self):
-        x, y = self.x * self.TILE, self.y * self.TILE
-        if self.visited:
-            pygame.draw.rect(self.screen, pygame.Color("gray"), (x, y, self.TILE, self.TILE))
-
     def check_cell(self, grid_cells, x, y):
         if x < 0 or x > self.cols - 1 or y < 0 or y > self.rows - 1:
             return False

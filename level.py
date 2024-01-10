@@ -1,11 +1,12 @@
 from map import *
-from player import Player
 from constants import *
 from support import remove_walls
-from overlay import Overlay
 from random import randint, uniform
-from timer import Timer
 from support import get_settings
+from player import Player
+from timer import Timer
+from overlay import Overlay
+from upgrades import *
 
 
 class Level:
@@ -31,6 +32,7 @@ class Level:
         self.all_sprites = pygame.sprite.Group()
         self.player_sprites = pygame.sprite.Group()
         self.walls = pygame.sprite.Group()
+        self.boost_sprites = pygame.sprite.Group()
         # генерация
         for y in range(self.rows):
             for x in range(self.cols):
@@ -138,7 +140,7 @@ class Level:
             timer.update()
 
 
-class Level1(Level):
+class Level2(Level):
     def generation(self):
         self.round += 1
         self.stack.clear()
@@ -152,4 +154,6 @@ class Level1(Level):
                1, self.all_sprites, self.player_sprites, self.walls)
         Player(self, self.settings, (self.map_width / 1.25, self.map_height / 2), (1, 0),
                2, self.all_sprites, self.player_sprites, self.walls)
-
+        Boost((self.tile / 2, self.tile / 2), self.player_sprites, self.all_sprites, self.boost_sprites)
+        SpeedBoost((self.tile / 2 + self.tile, self.tile / 2), self.player_sprites,
+                   self.all_sprites, self.boost_sprites)

@@ -3,7 +3,7 @@ import pygame
 import pygame_menu
 
 from level import Level
-from level import Level1
+from level import Level2
 from constants import *
 from os import remove, path
 from support import get_settings
@@ -119,7 +119,7 @@ class Settings:
 
     def proceed(self):
         self.change_settings()
-        self.level.settings[0], self.level.settings[1] = get_settings()
+        self.level.settings[0], self.level.settings[1], _, _ = get_settings()
         get_settings()
         self.game.fps = self.fps
         self.stop = True
@@ -170,7 +170,7 @@ class Game:
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
         pygame.display.set_caption('Танки 2D')
         self.clock = pygame.time.Clock()
-        self.level = Level1()
+        self.level = Level2()
         self.settings_menu = None
 
     def run(self):
