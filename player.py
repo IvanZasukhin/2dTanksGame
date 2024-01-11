@@ -7,7 +7,7 @@ from bullet import Bullet
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, level, settings, pos, vec, player_number, all_sprites, player_sprites, walls):
+    def __init__(self, level, settings, pos, vec, player_number, walls, all_sprites, player_sprites):
         super().__init__(all_sprites, player_sprites)
         self.level = level
         self.graphics_quality = settings[0]
@@ -26,7 +26,6 @@ class Player(pygame.sprite.Sprite):
         self.frame = 0
         self.import_animation()
         # Движение
-        self.maximum_bullets = 100
         self.old_direction = 0
         self.direction_rotation = 0
         self.pos = pygame.Vector2(pos)
@@ -51,6 +50,11 @@ class Player(pygame.sprite.Sprite):
         self.timers = {
             "use attack": Timer(250)
         }
+        # настройки пуль
+        self.radius_bullet = RADIUS_BULLET
+        self.speed_bullet = self.max_speed
+        self.maximum_bullets = 10
+        self.time_life_bullet = TIME_LIFE_BULLET
 
     def import_animation(self):
         for animation in self.animations.keys():
@@ -77,8 +81,8 @@ class Player(pygame.sprite.Sprite):
     def use_attack(self):
         self.timers["use attack"].activate()
         if len(self.bullet_sprites) != self.maximum_bullets:
-            Bullet(self.level, (self.pos.x, self.pos.y), -self.direction, self, self.player_sprites,
-                   self.walls, self.all_sprites, self.bullet_sprites)
+            Bullet(self.level, self.time_life_bullet, (self.pos.x, self.pos.y), self.radius_bullet, -self.direction,
+                   self.speed_bullet, self, self.player_sprites, self.walls, self.all_sprites, self.bullet_sprites)
 
     def update_timers(self):
         for timer in self.timers.values():
@@ -133,34 +137,28 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.transform.smoothscale_by(self.image, PLAYER_SCALE)
             self.orig_image = pygame.transform.scale_by(self.orig_image, PLAYER_SCALE)
 
+    # noinspection PyTypeChecker
     def collision(self, dt):
-        for sprite in self.walls.sprites():
-            if sprite.is_collided_with(self):
-                movement_v = -self.direction * self.speed
-                self.movement(dt, -movement_v)
-                break
-        for sprite in self.player_sprites.sprites():
-            if self is not sprite and sprite.is_collided_with(self):
-                movement_v = -self.direction * self.speed
-                self.movement(dt, -movement_v)
-                break
+        if pygame.sprite.spritecollide(self, self.walls, False, pygame.sprite.collide_mask):
+            movement_v = -self.direction * self.speed
+            self.movement(dt, -movement_v)
+        sprites = pygame.sprite.spritecollide(self, self.player_sprites, False, pygame.sprite.collide_mask)
+        if len(sprites) != 1:
+            movement_v = -self.direction * self.speed
+            self.movement(dt, -movement_v)
 
+    # noinspection PyTypeChecker
     def collision_turn(self, dt):
-        for sprite in self.walls.sprites():
-            if sprite.is_collided_with(self):
-                if self.old_direction != self.direction:
-                    self.direction = self.direction.rotate(dt * 360 * self.speed_angle * -self.direction_rotation)
-                    angle = self.direction.angle_to((0, -1))
-                    self.rotate(angle)
-        for sprite in self.player_sprites.sprites():
-            if self is not sprite and sprite.is_collided_with(self):
-                if self.old_direction != self.direction:
-                    self.direction = self.direction.rotate(dt * 360 * self.speed_angle * -self.direction_rotation)
-                    angle = self.direction.angle_to((0, -1))
-                    self.rotate(angle)
-
-    def is_collided_with(self, sprite):
-        return pygame.sprite.collide_mask(self, sprite)
+        if self.old_direction != self.direction:
+            if pygame.sprite.spritecollide(self, self.walls, False, pygame.sprite.collide_mask):
+                self.direction = self.direction.rotate(dt * 360 * self.speed_angle * -self.direction_rotation)
+                angle = self.direction.angle_to((0, -1))
+                self.rotate(angle)
+            sprites = pygame.sprite.spritecollide(self, self.player_sprites, False, pygame.sprite.collide_mask)
+            if len(sprites) != 1:
+                self.direction = self.direction.rotate(dt * 360 * self.speed_angle * -self.direction_rotation)
+                angle = self.direction.angle_to((0, -1))
+                self.rotate(angle)
 
     def movement(self, dt, movement_v):
         self.pos += movement_v * dt
@@ -169,6 +167,12 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = self.hit_box.center
 
     def get_boost(self, name_boost):
-        print(name_boost)
         if name_boost == "speed boost":
             self.max_speed = self.max_speed * 2
+            self.speed_bullet = self.max_speed
+        if name_boost == "attack boost":
+            self.radius_bullet = self.radius_bullet / 2
+            self.time_life_bullet = self.time_life_bullet / 4
+            self.timers["use attack"].duration = self.timers["use attack"].duration / 2
+            self.speed_bullet = self.speed_bullet * 1.25
+            self.maximum_bullets = self.maximum_bullets * 2

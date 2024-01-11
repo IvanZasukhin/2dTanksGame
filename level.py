@@ -76,11 +76,6 @@ class Level:
                 current_cell = self.stack.pop()
             next_cell = current_cell.check_neighbors(self.grid_cells)
 
-        # Уменьшение кол-ва стенок
-        # for cell in self.grid_cells:
-        #     next_cell = check_neighbors_second(cell, self.grid_cells)
-        #     remove_walls(cell, next_cell)
-
         # Создание стен
         for cell in self.grid_cells:
             x = cell.x * self.tile
@@ -107,8 +102,10 @@ class Level:
         flag = True
         while flag:
             pos1, pos2, vec1, vec2 = self.set_position()
-            Player(self, self.settings, pos1, vec1, 1, self.all_sprites, self.player_sprites, self.walls)
-            Player(self, self.settings, pos2, vec2, 2, self.all_sprites, self.player_sprites, self.walls)
+            Player(self, self.settings, pos1, vec1, 1,
+                   self.walls, self.all_sprites, self.player_sprites)
+            Player(self, self.settings, pos2, vec2, 2,
+                   self.walls, self.all_sprites, self.player_sprites)
             pygame.sprite.groupcollide(self.player_sprites, self.walls, True, False)
             if len(self.player_sprites) == 2:
                 flag = False
@@ -151,9 +148,11 @@ class Level2(Level):
 
     def setup(self):
         Player(self, self.settings, (self.map_width / 4, self.map_height / 2), (-1, 0),
-               1, self.all_sprites, self.player_sprites, self.walls)
+               1, self.walls, self.all_sprites, self.player_sprites)
         Player(self, self.settings, (self.map_width / 1.25, self.map_height / 2), (1, 0),
-               2, self.all_sprites, self.player_sprites, self.walls)
+               2, self.walls, self.all_sprites, self.player_sprites)
         Boost((self.tile / 2, self.tile / 2), self.player_sprites, self.all_sprites, self.boost_sprites)
         SpeedBoost((self.tile / 2 + self.tile, self.tile / 2), self.player_sprites,
                    self.all_sprites, self.boost_sprites)
+        AttackBoost((self.tile / 2 + self.tile * 2, self.tile / 2), self.player_sprites,
+                    self.all_sprites, self.boost_sprites)

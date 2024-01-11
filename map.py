@@ -61,21 +61,3 @@ class Border(pygame.sprite.Sprite):
         return pygame.sprite.collide_mask(self, sprite)
 
 
-def check_neighbors_second(cell, grid_cells):
-    neighbors = []
-    top = cell.check_cell(grid_cells, cell.x, cell.y - 1)
-    right = cell.check_cell(grid_cells, cell.x + 1, cell.y)
-    bottom = cell.check_cell(grid_cells, cell.x, cell.y + 1)
-    left = cell.check_cell(grid_cells, cell.x - 1, cell.y)
-    if top:
-        neighbors.append(top)
-    if right:
-        neighbors.append(right)
-    if bottom:
-        neighbors.append(bottom)
-    if left:
-        neighbors.append(left)
-    if neighbors:
-        return choice(neighbors)
-    else:
-        return False

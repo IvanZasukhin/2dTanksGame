@@ -4,8 +4,8 @@ import pygame.sprite
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, level, pos, direction, player_owned, player_sprites, walls, all_sprites, bullet_sprites,
-                 time_life=500):
+    def __init__(self, level, time_life, pos, radius, direction, speed, player_owned, player_sprites, walls,
+                 all_sprites, bullet_sprites):
         super().__init__(all_sprites, bullet_sprites)
         self.level = level
         self.bullet_sprites = bullet_sprites
@@ -14,12 +14,12 @@ class Bullet(pygame.sprite.Sprite):
         self.player_sprites = player_sprites
         self.direction = direction
         self.player_owned = player_owned
-        self.speed = self.player_owned.max_speed * 1.5
-        self.image = pygame.Surface((2 * RADIUS_BULLET, 2 * RADIUS_BULLET),
+        self.speed = speed * BULLET_SPEED_COF
+        self.image = pygame.Surface((2 * radius, 2 * radius),
                                     pygame.SRCALPHA)
         pygame.draw.circle(self.image, BLACK,
-                           (RADIUS_BULLET, RADIUS_BULLET), RADIUS_BULLET)
-        direction.scale_to_length(38 + RADIUS_BULLET)
+                           (radius, radius), radius)
+        direction.scale_to_length(38 + radius)
         self.pos = pygame.Vector2(pos[0] + direction.x, pos[1] + direction.y)
         self.rect = self.image.get_rect(center=self.pos)
         self.hit_box = self.rect.copy()
@@ -44,23 +44,21 @@ class Bullet(pygame.sprite.Sprite):
         if not self.timers["time life"].active or self.round != self.level.round:
             self.kill()
 
+    # noinspection PyTypeChecker
     def check_collision(self, dt):
-        for sprite in self.walls.sprites():
-            if sprite.is_collided_with(self):
-                if self.direction:
-                    self.direction.reflect_ip(sprite.direction)
+        sprites = pygame.sprite.spritecollide(self, self.walls, False, pygame.sprite.collide_mask)
+        if sprites:
+            if self.direction:
+                self.direction.reflect_ip(sprites[0].direction)
+            self.move(dt, self.direction)
+            if sprites[0].is_collided_with(self):
+                self.direction = self.direction.rotate(180)
                 self.move(dt, self.direction)
-                if sprite.is_collided_with(self):
-                    self.direction = self.direction.rotate(180)
-                    self.move(dt, self.direction)
-                while sprite.is_collided_with(self):
-                    self.move(dt, self.direction)
-                break
-        for sprite in self.player_sprites.sprites():
-            if sprite.is_collided_with(self):
-                if sprite in self.player_sprites:
-                    self.start_new_round(sprite)
-                break
+            while sprites[0].is_collided_with(self):
+                self.move(dt, self.direction)
+        sprites = pygame.sprite.spritecollide(self, self.player_sprites, False, pygame.sprite.collide_mask)
+        if sprites:
+            self.start_new_round(sprites[0])
 
     def start_new_round(self, sprite):
         self.kill()

@@ -119,7 +119,7 @@ class Settings:
 
     def proceed(self):
         self.change_settings()
-        self.level.settings[0], self.level.settings[1], _, _ = get_settings()
+        self.level.settings[0], self.level.settings[1] = get_settings()[:2]
         get_settings()
         self.game.fps = self.fps
         self.stop = True

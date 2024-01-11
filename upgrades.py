@@ -60,16 +60,21 @@ class Boost(pygame.sprite.Sprite):
         self.rotate()
         self.zoom()
 
+    # noinspection PyTypeChecker
     def collision(self):
-        for sprite in self.player_sprites.sprites():
-            if sprite.is_collided_with(self):
-                if sprite in self.player_sprites:
-                    self.kill()
-                    sprite.get_boost(self.effect)
-                break
+        sprites = pygame.sprite.spritecollide(self, self.player_sprites, False, pygame.sprite.collide_mask)
+        if sprites:
+            self.kill()
+            sprites[0].get_boost(self.effect)
 
 
 class SpeedBoost(Boost):
     def __init__(self, pos, player_sprites, all_sprites, boost_sprites):
         super().__init__(pos, player_sprites, all_sprites, boost_sprites, color=GREEN)
         self.effect = "speed boost"
+
+
+class AttackBoost(Boost):
+    def __init__(self, pos, player_sprites, all_sprites, boost_sprites):
+        super().__init__(pos, player_sprites, all_sprites, boost_sprites, color=RED)
+        self.effect = "attack boost"
