@@ -13,7 +13,7 @@ PURPLE = Color('purple')
 
 MY_THEME = themes.THEME_DEFAULT.copy()
 MY_THEME.selection_color = BLACK
-MY_THEME.widget_selection_effect.set_background_color(DARKGRAY)
+# MY_THEME.widget_selection_effect.set_background_color(DARKGRAY)
 
 PLAYER_SCALE = 0.125
 PLAYER_MAX_SPEED = 200

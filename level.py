@@ -1,5 +1,4 @@
 from map import *
-from constants import *
 from support import remove_walls
 from random import randint, uniform
 from support import get_settings
@@ -9,8 +8,9 @@ from overlay import Overlay
 from upgrades import *
 
 
-class Level:
-    def __init__(self):
+class Level1:
+    def __init__(self, game):
+        self.game = game
         self.settings = get_settings()
         # окно
         self.screen = pygame.display.get_surface()
@@ -96,6 +96,9 @@ class Level:
                 self.blue_wins += 1
             elif self.player_sprites.sprites()[0].player_number == 2:
                 self.red_wins += 1
+        if self.round == self.settings[2]:
+            pygame.display.quit()
+            self.game.end_game(self.blue_wins, self.red_wins)
         self.new_lvl()
 
     def setup(self):
@@ -137,7 +140,7 @@ class Level:
             timer.update()
 
 
-class Level2(Level):
+class Level2(Level1):
     def generation(self):
         self.round += 1
         self.stack.clear()

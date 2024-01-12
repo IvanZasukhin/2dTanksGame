@@ -21,7 +21,7 @@ class Boost(pygame.sprite.Sprite):
         self.scale_min = self.scale - deviation
         self.angle = 0
         self.ratio_animation = -800
-        self.speed_animation = 50
+        self.speed_animation = 100
 
         self.original_image = pygame.Surface(size, pygame.SRCALPHA)
         pygame.draw.rect(self.original_image, self.color, (0, 0, rect_size,
