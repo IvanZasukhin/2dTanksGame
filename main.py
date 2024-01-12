@@ -116,7 +116,6 @@ class Settings:
         self.game = game
         self.graphics_quality, self.fps = get_settings()[:2]
         self.clock = pygame.time.Clock()
-        # self.stop = False
 
         self.settings = pygame_menu.Menu('Настройки', 400, 300,
                                          theme=MY_THEME, mouse_enabled=False, mouse_visible=False)
@@ -136,7 +135,6 @@ class Settings:
 
     def activate(self):
         self.background_image = pygame_menu.BaseImage(image_path="data/background.jpg")
-        # self.stop = False
         self.settings.enable()
         self.run()
 
@@ -145,17 +143,14 @@ class Settings:
         self.level.settings[0], self.level.settings[1] = get_settings()[:2]
         get_settings()
         self.game.fps = self.fps
-        # self.stop = True
         self.settings.disable()
         remove('data/background.jpg')
 
     def back_to_main(self):
         self.change_settings()
         if self.main_menu:
-            # self.stop = True
             self.settings.disable()
         else:
-            # self.stop = True
             self.settings.disable()
             pygame.display.quit()
             remove('data/background.jpg')
@@ -178,17 +173,6 @@ class Settings:
 
     def run(self):
         self.settings.mainloop(self.screen, self.background)
-        # while True:
-        #     if self.stop:
-        #         self.settings.disable()
-        #         break
-        #     for event in pygame.event.get():
-        #         if event.type == pygame.KEYDOWN:
-        #             if event.key == pygame.K_ESCAPE:
-        #                 self.proceed()
-        #     self.clock.tick(self.fps)
-        #     self.settings.mainloop(self.screen, self.background)
-        #     pygame.display.flip()
 
 
 class Game:
@@ -219,8 +203,10 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         pygame.image.save(self.screen, "data/background.jpg")
                         if self.settings_menu:
+                            self.level.pause_game()
                             self.settings_menu.activate()
                         else:
+                            self.level.pause_game()
                             self.settings_menu = Settings(game=self, level=self.level)
                             self.level.settings_menu = self.settings_menu
 

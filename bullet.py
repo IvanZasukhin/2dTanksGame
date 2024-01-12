@@ -66,9 +66,13 @@ class Bullet(pygame.sprite.Sprite):
         self.level.timers["wait round"].activate()
 
     def move(self, dt, direction):
+        self.pause()
         if direction:
             direction.normalize_ip()
         self.pos += direction * dt * self.speed
         self.hit_box.centerx = round(self.pos.x)
         self.hit_box.centery = round(self.pos.y)
         self.rect.center = self.hit_box.center
+
+    def pause(self):
+        self.timers["time life"].pause()

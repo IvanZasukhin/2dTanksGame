@@ -43,6 +43,7 @@ class Level1:
         }
         self.timers["wait round"].freeze = True
 
+        self.freeze = False
         self.new_lvl()
 
     def new_lvl(self):
@@ -130,7 +131,9 @@ class Level1:
         pygame.draw.rect(self.screen, GRAY, (0, 0, self.cols * self.tile, self.rows * self.tile))
         self.overlay.display(self.round, self.blue_wins, self.red_wins)
         self.all_sprites.draw(self.screen)
-
+        if self.freeze:
+            dt = 0
+            self.resume_game()
         self.all_sprites.update(dt)
         self.overlay.update_timers()
         self.update_timers()
@@ -138,6 +141,20 @@ class Level1:
     def update_timers(self):
         for timer in self.timers.values():
             timer.update()
+
+    def pause_game(self):
+        self.freeze = True
+        for sprite in self.all_sprites.sprites():
+            if hasattr(sprite, "timers"):
+                for i in sprite.timers:
+                    sprite.timers[i].pause()
+
+    def resume_game(self):
+        self.freeze = False
+        for sprite in self.all_sprites.sprites():
+            if hasattr(sprite, "timers"):
+                for i in sprite.timers:
+                    sprite.timers[i].resume()
 
 
 class Level2(Level1):

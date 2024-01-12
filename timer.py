@@ -6,6 +6,7 @@ class Timer:
         self.duration = duration
         self.func = func
         self.start_time = 0
+        self.old_duration = duration
         self.active = False
         self.freeze = False
 
@@ -24,3 +25,11 @@ class Timer:
             self.deactivate()
             if self.func:
                 self.func()
+
+    def pause(self):
+        self.freeze = True
+        self.old_duration = time.get_ticks() - self.start_time
+
+    def resume(self):
+        self.freeze = False
+        self.start_time = time.get_ticks() - self.old_duration
