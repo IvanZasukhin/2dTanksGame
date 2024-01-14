@@ -12,10 +12,10 @@ class Boost(pygame.sprite.Sprite):
         self.effect = "NONE effect"
         self.color = color
 
-        size = (64, 64)
-        rect_size = 512
+        size = (32, 32)
+        rect_size = 32
 
-        self.scale = 0.9
+        self.scale = 1
         deviation = 0.1
         self.scale_max = self.scale + deviation
         self.scale_min = self.scale - deviation
@@ -37,7 +37,7 @@ class Boost(pygame.sprite.Sprite):
         self.zoom()
 
     def update(self, dt):
-        self.animation(dt)
+        # self.animation(dt)
         self.collision()
 
     def rotate(self):

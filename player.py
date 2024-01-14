@@ -170,9 +170,10 @@ class Player(pygame.sprite.Sprite):
         print(name_boost)
         if name_boost == "speed boost":
             self.max_speed *= 1.5
+            self.speed_angle *= 1.2
             self.speed_bullet = self.max_speed
-        if name_boost == "attack boost":
-            self.radius_bullet /= 2
+        elif name_boost == "attack boost":
+            self.radius_bullet /= 1.5
             self.time_life_bullet /= 4
             self.timers["use attack"].duration /= 2
             self.speed_bullet *= 1.25
@@ -190,6 +191,7 @@ class Player(pygame.sprite.Sprite):
         self.timers[name_boost].freeze = True
         if name_boost == "speed boost":
             self.max_speed = self.max_speed / 2
+            self.speed_angle /= 1.2
             self.speed_bullet = self.max_speed
         if name_boost == "attack boost":
             self.radius_bullet = self.radius_bullet * 2

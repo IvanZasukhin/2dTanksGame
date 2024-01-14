@@ -11,7 +11,7 @@ def import_image(path, graphics_quality):
             im = image.load(fullname).convert_alpha()
             image_surface = transform.scale(im, (512, 512))
             if graphics_quality == 0:
-                image_surface = transform.scale_by(image_surface, PLAYER_ZOOM)
+                image_surface = transform.scale_by(image_surface, PLAYER_SCALE)
             surface_list.append(image_surface)
     return surface_list
 

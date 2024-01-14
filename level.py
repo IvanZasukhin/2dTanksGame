@@ -1,6 +1,6 @@
 from map import *
 from support import remove_walls
-from random import randint, uniform
+from random import randint, uniform, choice
 from support import get_settings
 from player import Player
 from timer import Timer
@@ -19,6 +19,7 @@ class Level1:
         self.grid_cells = []
         self.stack = []
         self.tile = 175
+        self.boost_types = ('speed boost', 'attack boost')
         self.cols, self.rows = SCREEN_WIDTH // self.tile, (SCREEN_HEIGHT - 75) // self.tile
         self.map_width = SCREEN_WIDTH // self.tile * self.tile
         self.map_height = (SCREEN_HEIGHT - 75) // self.tile * self.tile
@@ -105,7 +106,7 @@ class Level1:
     def setup(self):
         flag = True
         while flag:
-            pos1, pos2, vec1, vec2 = self.set_position()
+            pos1, pos2, vec1, vec2 = self.set_players_positions()
             Player(self, self.settings, pos1, vec1, 1,
                    self.walls, self.all_sprites, self.player_sprites)
             Player(self, self.settings, pos2, vec2, 2,
@@ -117,7 +118,22 @@ class Level1:
                 for player in self.player_sprites:
                     player.kill()
 
-    def set_position(self):
+        upgrades_count = randint(2, 5)
+        for i in range(upgrades_count):
+            boost = None
+            pos = self.set_upgrade_position()
+            boost_type = choice(self.boost_types)
+            if boost_type == 'speed boost':
+                boost = SpeedBoost(pos, self.player_sprites, self.all_sprites, self.boost_sprites)
+            elif boost_type == 'attack boost':
+                boost = AttackBoost(pos, self.player_sprites, self.all_sprites, self.boost_sprites)
+
+            if pygame.sprite.spritecollide(boost, self.walls, False):
+                boost.kill()
+            if pygame.sprite.spritecollide(boost, self.player_sprites, False):
+                boost.kill()
+
+    def set_players_positions(self):
         x1 = randint(50, self.map_width // 2 - 25)
         y1 = randint(50, self.map_height - 50)
         x2 = randint(self.map_width // 2 + 25, self.map_width - 50)
@@ -125,6 +141,11 @@ class Level1:
         vec1 = (uniform(-1, 1), uniform(-1, 1))
         vec2 = (uniform(-1, 1), uniform(-1, 1))
         return (x1, y1), (x2, y2), vec1, vec2
+
+    def set_upgrade_position(self):
+        x = randint(25, self.map_width - 25)
+        y = randint(25, self.map_height - 25)
+        return x, y
 
     def run(self, dt):
         self.screen.fill(WHITE)

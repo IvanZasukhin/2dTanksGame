@@ -17,7 +17,7 @@ class MainMenu:
         pygame.display.set_caption('Танки 2D')
         self.menu = pygame_menu.Menu('Танки 2D', 400, 300,
                                      theme=MY_THEME, mouse_enabled=False, mouse_visible=False)
-        self.menu.add.button('Играть', self.start_the_game)
+        self.menu.add.button('Начать', self.start_the_game)
 
         self.menu.add.button('Настройки', self.settings_init)
         self.menu.add.button('Выйти', pygame_menu.events.EXIT)
@@ -97,7 +97,7 @@ class FinalMenu:
         else:
             self.menu.add.label('Ничья', font_color=BLACK)
 
-        self.menu.add.label(f'Счёт {blue_wins} : {red_wins}', font_color=BLACK)
+        self.menu.add.label(f'Со счётом {blue_wins} : {red_wins}', font_color=BLACK)
         self.menu.add.button('Главное меню', self.back_to_main)
         self.menu.add.button('Выйти', pygame_menu.events.EXIT)
 
