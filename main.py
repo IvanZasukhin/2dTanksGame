@@ -48,7 +48,7 @@ class GameSelection:
         self.max_round, self.selected_game = get_settings()[2:]
 
         self.menu = pygame_menu.Menu('Выбор уровня', 400, 300,
-                                     theme=MY_THEME, mouse_enabled=False)
+                                     theme=MY_THEME, mouse_enabled=False, mouse_visible=False)
         self.menu.add.button('Играть', self.start_game)
         self.menu.add.selector('Раундов: ', [('3', 3), ('5', 5), ('10', 10), ('15', 15)], default=self.max_round // 5,
                                onchange=self.set_rounds_count)

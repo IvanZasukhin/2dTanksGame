@@ -4,6 +4,7 @@ from pygame import time
 class Timer:
     def __init__(self, duration, func=None):
         self.duration = duration
+        self.old_duration = duration
         self.func = func
         self.start_time = 0
         self.old_duration = duration
@@ -23,8 +24,16 @@ class Timer:
         current_time = time.get_ticks()
         if current_time - self.start_time >= self.duration and not self.freeze:
             self.deactivate()
+            self.duration = self.old_duration
             if self.func:
                 self.func()
+
+    def stop(self):
+        self.start_time = time.get_ticks()
+        self.freeze = True
+
+    def start(self):
+        self.freeze = False
 
     def pause(self):
         self.freeze = True

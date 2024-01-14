@@ -167,6 +167,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = self.hit_box.center
 
     def get_boost(self, name_boost):
+        print(name_boost)
         if name_boost == "speed boost":
             self.max_speed *= 1.5
             self.speed_bullet = self.max_speed
@@ -176,3 +177,23 @@ class Player(pygame.sprite.Sprite):
             self.timers["use attack"].duration /= 2
             self.speed_bullet *= 1.25
             self.maximum_bullets *= 2
+            self.radius_bullet = self.radius_bullet / 2
+            self.time_life_bullet = self.time_life_bullet / 4
+            self.timers["use attack"] = Timer(self.timers["use attack"].duration / 4)
+            self.speed_bullet = self.speed_bullet * 1.25
+            self.maximum_bullets = self.maximum_bullets * 2
+        self.timers[name_boost] = Timer(5000, lambda: self.stop_boost(name_boost))
+        self.timers[name_boost].activate()
+
+    def stop_boost(self, name_boost):
+        self.timers[name_boost].activate()
+        self.timers[name_boost].freeze = True
+        if name_boost == "speed boost":
+            self.max_speed = self.max_speed / 2
+            self.speed_bullet = self.max_speed
+        if name_boost == "attack boost":
+            self.radius_bullet = self.radius_bullet * 2
+            self.time_life_bullet = self.time_life_bullet * 4
+            self.timers["use attack"] = Timer(self.timers["use attack"].duration * 4)
+            self.speed_bullet = self.speed_bullet / 1.25
+            self.maximum_bullets = self.maximum_bullets / 2

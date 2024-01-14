@@ -171,7 +171,7 @@ class Level2(Level1):
                1, self.walls, self.all_sprites, self.player_sprites)
         Player(self, self.settings, (self.map_width / 1.25, self.map_height / 2), (1, 0),
                2, self.walls, self.all_sprites, self.player_sprites)
-        Boost((self.tile / 2, self.tile / 2), self.player_sprites, self.all_sprites, self.boost_sprites)
+        # Boost((self.tile / 2, self.tile / 2), self.player_sprites, self.all_sprites, self.boost_sprites)
         SpeedBoost((self.tile / 2 + self.tile, self.tile / 2), self.player_sprites,
                    self.all_sprites, self.boost_sprites)
         AttackBoost((self.tile / 2 + self.tile * 2, self.tile / 2), self.player_sprites,
