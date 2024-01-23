@@ -22,7 +22,6 @@ class Bullet(pygame.sprite.Sprite):
         direction.scale_to_length(38 + radius)
         self.pos = pygame.Vector2(pos[0] + direction.x, pos[1] + direction.y)
         self.rect = self.image.get_rect(center=self.pos)
-        self.hit_box = self.rect.copy()
         self.timers = {
             "time life": Timer(time_life)
         }
@@ -70,9 +69,7 @@ class Bullet(pygame.sprite.Sprite):
         if direction:
             direction.normalize_ip()
         self.pos += direction * dt * self.speed
-        self.hit_box.centerx = round(self.pos.x)
-        self.hit_box.centery = round(self.pos.y)
-        self.rect.center = self.hit_box.center
+        self.rect.center = round(self.pos.x), round(self.pos.y)
 
     def pause(self):
         self.timers["time life"].pause()

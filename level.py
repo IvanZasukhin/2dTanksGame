@@ -108,9 +108,9 @@ class Level1:
         while flag:
             pos1, pos2, vec1, vec2 = self.set_players_positions()
             Player(self, self.settings, pos1, vec1, 1,
-                   self.walls, self.all_sprites, self.player_sprites)
+                   self.walls, self.boost_sprites, self.all_sprites, self.player_sprites)
             Player(self, self.settings, pos2, vec2, 2,
-                   self.walls, self.all_sprites, self.player_sprites)
+                   self.walls, self.boost_sprites, self.all_sprites, self.player_sprites)
             pygame.sprite.groupcollide(self.player_sprites, self.walls, True, False)
             if len(self.player_sprites) == 2:
                 flag = False
@@ -189,9 +189,9 @@ class Level2(Level1):
 
     def setup(self):
         Player(self, self.settings, (self.map_width / 4, self.map_height / 2), (-1, 0),
-               1, self.walls, self.all_sprites, self.player_sprites)
+               1, self.walls, self.boost_sprites, self.all_sprites, self.player_sprites)
         Player(self, self.settings, (self.map_width / 1.25, self.map_height / 2), (1, 0),
-               2, self.walls, self.all_sprites, self.player_sprites)
+               2, self.walls, self.boost_sprites, self.all_sprites, self.player_sprites)
         # Boost((self.tile / 2, self.tile / 2), self.player_sprites, self.all_sprites, self.boost_sprites)
         SpeedBoost((self.tile / 2 + self.tile, self.tile / 2), self.player_sprites,
                    self.all_sprites, self.boost_sprites)

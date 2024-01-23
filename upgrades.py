@@ -36,10 +36,6 @@ class Boost(pygame.sprite.Sprite):
 
         self.zoom()
 
-    def update(self, dt):
-        # self.animation(dt)
-        self.collision()
-
     def rotate(self):
         self.image = pygame.transform.rotate(self.original_image, self.angle)
         self.rect = self.image.get_rect(center=self.hit_box.center)
@@ -51,21 +47,6 @@ class Boost(pygame.sprite.Sprite):
         else:
             self.image = pygame.transform.scale_by(self.image, self.scale)
         self.rect = self.image.get_rect(center=self.hit_box.center)
-
-    def animation(self, dt):
-        self.scale -= self.speed_animation * dt / self.ratio_animation
-        if self.scale < self.scale_min or self.scale > self.scale_max:
-            self.ratio_animation = -self.ratio_animation
-        self.angle += self.speed_animation * dt % 360
-        self.rotate()
-        self.zoom()
-
-    # noinspection PyTypeChecker
-    def collision(self):
-        sprites = pygame.sprite.spritecollide(self, self.player_sprites, False, pygame.sprite.collide_mask)
-        if sprites:
-            self.kill()
-            sprites[0].get_boost(self.effect)
 
 
 class SpeedBoost(Boost):

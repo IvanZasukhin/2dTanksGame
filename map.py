@@ -59,5 +59,3 @@ class Border(pygame.sprite.Sprite):
 
     def is_collided_with(self, sprite):
         return pygame.sprite.collide_mask(self, sprite)
-
-

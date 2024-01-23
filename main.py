@@ -1,7 +1,6 @@
 import sys
 import pygame
 import pygame_menu
-
 from level import Level1, Level2
 from constants import *
 from os import remove, path
@@ -109,7 +108,8 @@ class FinalMenu:
 
         self.menu.mainloop(self.screen)
 
-    def back_to_main(self):
+    @staticmethod
+    def back_to_main():
         pygame.mixer.music.stop()
         pygame.mixer.music.unload()
         pygame.display.quit()
@@ -179,7 +179,8 @@ class Settings:
     def set_fps(self, *fps):
         self.fps = fps[1]
 
-    def set_volume(self, *volume):
+    @staticmethod
+    def set_volume(*volume):
         pygame.mixer.music.set_volume(volume[1] / 100)
 
     def change_settings(self):
@@ -213,7 +214,8 @@ class Game:
         elif changed_level == 1:
             self.level = Level2(self)
 
-    def end_game(self, blue_wins, red_wins):
+    @staticmethod
+    def end_game(blue_wins, red_wins):
         FinalMenu(blue_wins, red_wins)
 
     def run(self):
@@ -238,7 +240,6 @@ class Game:
             self.level.run(dt)
             pygame.mouse.set_visible(False)
             pygame.display.update()
-            pygame.display.set_caption("FPS: " + str(int(self.clock.get_fps())))  # FPS
 
 
 if __name__ == '__main__':

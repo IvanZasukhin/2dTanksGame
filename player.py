@@ -1,18 +1,18 @@
 import pygame.sprite
-
-from support import *
 from timer import Timer
 from constants import *
 from bullet import Bullet
+from os import walk
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, level, settings, pos, vec, player_number, walls, all_sprites, player_sprites):
+    def __init__(self, level, settings, pos, vec, player_number, walls, boost_sprites, all_sprites, player_sprites):
         super().__init__(all_sprites, player_sprites)
         self.level = level
         self.graphics_quality = settings[0]
         self.all_sprites = all_sprites
         self.player_sprites = player_sprites
+        self.boost_sprites = boost_sprites
         self.walls = walls
         self.bullet_sprites = pygame.sprite.Group()
         self.player_number = player_number
@@ -43,7 +43,6 @@ class Player(pygame.sprite.Sprite):
         self.orig_image = pygame.transform.rotate(self.orig_image, angle)
         self.zoom()
         self.rect = self.image.get_rect(center=pos)
-        self.hit_box = self.rect.copy()
         self.mask = pygame.mask.from_surface(self.orig_image)
 
         # Таймер
@@ -59,7 +58,7 @@ class Player(pygame.sprite.Sprite):
     def import_animation(self):
         for animation in self.animations.keys():
             full_path = f"data/animations/{self.player_number}/standard/{animation}"
-            self.animations[animation] = import_image(full_path, self.graphics_quality)
+            self.animations[animation] = self.import_image(full_path)
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -127,7 +126,6 @@ class Player(pygame.sprite.Sprite):
         self.orig_image = pygame.transform.rotate(self.animations[self.status][0], angle)
         self.zoom()
         self.mask = pygame.mask.from_surface(self.orig_image)
-        self.rect = self.image.get_rect(center=self.hit_box.center)
 
     def zoom(self):
         if self.graphics_quality == 1:
@@ -146,6 +144,10 @@ class Player(pygame.sprite.Sprite):
         if len(sprites) != 1:
             movement_v = -self.direction * self.speed
             self.movement(dt, -movement_v)
+        sprites = pygame.sprite.spritecollide(self, self.boost_sprites, False, pygame.sprite.collide_mask)
+        if sprites:
+            if self.check_boost(sprites[0].effect):
+                sprites[0].kill()
 
     # noinspection PyTypeChecker
     def collision_turn(self, dt):
@@ -162,12 +164,9 @@ class Player(pygame.sprite.Sprite):
 
     def movement(self, dt, movement_v):
         self.pos += movement_v * dt
-        self.hit_box.centerx = round(self.pos.x)
-        self.hit_box.centery = round(self.pos.y)
-        self.rect.center = self.hit_box.center
+        self.rect.center = round(self.pos.x), round(self.pos.y)
 
     def get_boost(self, name_boost):
-        print(name_boost)
         if name_boost == "speed boost":
             self.max_speed *= 1.5
             self.speed_angle *= 1.2
@@ -178,11 +177,11 @@ class Player(pygame.sprite.Sprite):
             self.timers["use attack"].duration /= 2
             self.speed_bullet *= 1.25
             self.maximum_bullets *= 2
-            self.radius_bullet = self.radius_bullet / 2
-            self.time_life_bullet = self.time_life_bullet / 4
+            self.radius_bullet /= 2
+            self.time_life_bullet /= 4
             self.timers["use attack"] = Timer(self.timers["use attack"].duration / 4)
-            self.speed_bullet = self.speed_bullet * 1.25
-            self.maximum_bullets = self.maximum_bullets * 2
+            self.speed_bullet *= 1.25
+            self.maximum_bullets *= 2
         self.timers[name_boost] = Timer(5000, lambda: self.stop_boost(name_boost))
         self.timers[name_boost].activate()
 
@@ -194,8 +193,29 @@ class Player(pygame.sprite.Sprite):
             self.speed_angle /= 1.2
             self.speed_bullet = self.max_speed
         if name_boost == "attack boost":
-            self.radius_bullet = self.radius_bullet * 2
-            self.time_life_bullet = self.time_life_bullet * 4
+            self.radius_bullet *= 2
+            self.time_life_bullet *= 4
             self.timers["use attack"] = Timer(self.timers["use attack"].duration * 4)
-            self.speed_bullet = self.speed_bullet / 1.25
-            self.maximum_bullets = self.maximum_bullets / 2
+            self.speed_bullet /= 1.25
+            self.maximum_bullets /= 2
+
+    def check_boost(self, effect):
+        try:
+            if self.timers[effect].active:
+                return False
+        except KeyError:
+            pass
+        self.get_boost(effect)
+        return True
+
+    def import_image(self, path):
+        surface_list = []
+        for _, _, image_files in walk(path):
+            for im in image_files:
+                fullname = path + "/" + im
+                im = pygame.image.load(fullname).convert_alpha()
+                image_surface = pygame.transform.scale(im, (512, 512))
+                if self.graphics_quality == 0:
+                    image_surface = pygame.transform.scale_by(image_surface, PLAYER_SCALE)
+                surface_list.append(image_surface)
+        return surface_list
