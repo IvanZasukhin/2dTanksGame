@@ -207,4 +207,3 @@ class Level2(Level1):
                1, self.walls, self.boost_sprites, self.all_sprites, self.player_sprites)
         Player(self, self.settings, (self.map_width / 1.25, self.map_height / 2), (1, 0),
                2, self.walls, self.boost_sprites, self.all_sprites, self.player_sprites)
-

@@ -1,5 +1,5 @@
 def get_settings():
-    with open('data/settings.txt', 'r') as file:
+    with open('data/settings.txt') as file:
         return [int(line.strip()) for line in file.readlines()]
 
 
