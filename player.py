@@ -126,6 +126,7 @@ class Player(pygame.sprite.Sprite):
         self.orig_image = pygame.transform.rotate(self.animations[self.status][0], angle)
         self.zoom()
         self.mask = pygame.mask.from_surface(self.orig_image)
+        self.rect = self.image.get_rect(center=(round(self.pos.x), round(self.pos.y)))
 
     def zoom(self):
         if self.graphics_quality == 1:
