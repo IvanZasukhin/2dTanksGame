@@ -10,11 +10,6 @@ from support import get_settings
 
 class MainMenu:
     def __init__(self):
-        try:
-            pygame.mixer.music.stop()
-            pygame.mixer.music.unload()
-        except:
-            pass
         pygame.mixer.music.load('./data/music/menu.mp3')
         pygame.mixer.music.play(-1)
         self.settings_menu = None
@@ -81,7 +76,7 @@ class GameSelection:
 
     def change_game_settings(self):
         settings = get_settings()[:2]
-        with open('data/settings.txt', 'w') as file_settings:
+        with open('data/settings.txt', 'w', encoding="utf8") as file_settings:
             file_settings.write(f'{settings[0]}\n{settings[1]}\n{self.max_round}\n{self.selected_game}')
 
     def start_game(self):
@@ -115,6 +110,8 @@ class FinalMenu:
         self.menu.mainloop(self.screen)
 
     def back_to_main(self):
+        pygame.mixer.music.stop()
+        pygame.mixer.music.unload()
         pygame.display.quit()
         MainMenu()
 
@@ -143,10 +140,9 @@ class Settings:
                                    onchange=self.set_graphics_quality, default=self.graphics_quality)
         self.settings.add.selector('FPS:', [('30', 30), ('60', 60), ('120', 120)],
                                    onchange=self.set_fps, default=self.fps // 60)
-        # self.settings.add.range_slider('Громкость', 50, (0, 100), 10)
         self.settings.add.selector('Громкость:', [('0', 0), ('10', 10), ('20', 20), ('30', 30), ('40', 40),
                                                   ('50', 50), ('60', 60), ('70', 70), ('80', 80), ('90', 90),
-                                                  ('100', 100)], default=int(pygame.mixer.music.get_volume() * 10),
+                                                  ('100', 100)], default=round(pygame.mixer.music.get_volume() * 10),
                                    onchange=self.set_volume)
         self.settings.add.button('Главное меню', self.back_to_main)
 
@@ -188,7 +184,7 @@ class Settings:
 
     def change_settings(self):
         settings = get_settings()[2:]
-        with open('data/settings.txt', 'w') as file_settings:
+        with open('data/settings.txt', 'w', encoding="utf8") as file_settings:
             file_settings.write(f'{self.graphics_quality}\n{self.fps}\n{settings[0]}\n{settings[1]}')
 
     def background(self):
@@ -247,8 +243,8 @@ class Game:
 
 if __name__ == '__main__':
     pygame.init()
-    pygame.mixer.music.set_volume(0.5)
-    with open('data/settings.txt', 'r+') as file:
+    pygame.mixer.music.set_volume(0.1)
+    with open('data/settings.txt', 'r+', encoding="utf8") as file:
         if not file.read().strip():
             file.write(f'2\n60\n5\n1')
     MainMenu()
