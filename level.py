@@ -104,20 +104,6 @@ class Level1:
         self.new_lvl()
 
     def setup(self):
-        flag = True
-        while flag:
-            pos1, pos2, vec1, vec2 = self.set_players_positions()
-            Player(self, self.settings, pos1, vec1, 1,
-                   self.walls, self.boost_sprites, self.all_sprites, self.player_sprites)
-            Player(self, self.settings, pos2, vec2, 2,
-                   self.walls, self.boost_sprites, self.all_sprites, self.player_sprites)
-            pygame.sprite.groupcollide(self.player_sprites, self.walls, True, False)
-            if len(self.player_sprites) == 2:
-                flag = False
-            else:
-                for player in self.player_sprites:
-                    player.kill()
-
         upgrades_count = randint(2, 5)
         for i in range(upgrades_count):
             boost = None
@@ -132,6 +118,20 @@ class Level1:
                 boost.kill()
             if pygame.sprite.spritecollide(boost, self.player_sprites, False):
                 boost.kill()
+
+        flag = True
+        while flag:
+            pos1, pos2, vec1, vec2 = self.set_players_positions()
+            Player(self, self.settings, pos1, vec1, 1,
+                   self.walls, self.boost_sprites, self.all_sprites, self.player_sprites)
+            Player(self, self.settings, pos2, vec2, 2,
+                   self.walls, self.boost_sprites, self.all_sprites, self.player_sprites)
+            pygame.sprite.groupcollide(self.player_sprites, self.walls, True, False)
+            if len(self.player_sprites) == 2:
+                flag = False
+            else:
+                for player in self.player_sprites:
+                    player.kill()
 
     def set_players_positions(self):
         x1 = randint(50, self.map_width // 2 - 25)
@@ -188,12 +188,23 @@ class Level2(Level1):
         Border(0, self.rows * self.tile, self.cols * self.tile, self.rows * self.tile, self.all_sprites, self.walls)
 
     def setup(self):
+        upgrades_count = randint(2, 5)
+        for i in range(upgrades_count):
+            boost = None
+            pos = self.set_upgrade_position()
+            boost_type = choice(self.boost_types)
+            if boost_type == 'speed boost':
+                boost = SpeedBoost(pos, self.player_sprites, self.all_sprites, self.boost_sprites)
+            elif boost_type == 'attack boost':
+                boost = AttackBoost(pos, self.player_sprites, self.all_sprites, self.boost_sprites)
+
+            if pygame.sprite.spritecollide(boost, self.walls, False):
+                boost.kill()
+            if pygame.sprite.spritecollide(boost, self.player_sprites, False):
+                boost.kill()
+
         Player(self, self.settings, (self.map_width / 4, self.map_height / 2), (-1, 0),
                1, self.walls, self.boost_sprites, self.all_sprites, self.player_sprites)
         Player(self, self.settings, (self.map_width / 1.25, self.map_height / 2), (1, 0),
                2, self.walls, self.boost_sprites, self.all_sprites, self.player_sprites)
-        # Boost((self.tile / 2, self.tile / 2), self.player_sprites, self.all_sprites, self.boost_sprites)
-        SpeedBoost((self.tile / 2 + self.tile, self.tile / 2), self.player_sprites,
-                   self.all_sprites, self.boost_sprites)
-        AttackBoost((self.tile / 2 + self.tile * 2, self.tile / 2), self.player_sprites,
-                    self.all_sprites, self.boost_sprites)
+

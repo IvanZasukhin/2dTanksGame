@@ -149,6 +149,7 @@ class Player(pygame.sprite.Sprite):
         if sprites:
             if self.check_boost(sprites[0].effect):
                 sprites[0].kill()
+                self.get_boost(sprites[0].effect)
 
     # noinspection PyTypeChecker
     def collision_turn(self, dt):
@@ -178,23 +179,19 @@ class Player(pygame.sprite.Sprite):
             self.timers["use attack"].duration /= 2
             self.speed_bullet *= 1.25
             self.maximum_bullets *= 2
-            self.radius_bullet /= 2
-            self.time_life_bullet /= 4
             self.timers["use attack"] = Timer(self.timers["use attack"].duration / 4)
-            self.speed_bullet *= 1.25
-            self.maximum_bullets *= 2
         self.timers[name_boost] = Timer(5000, lambda: self.stop_boost(name_boost))
         self.timers[name_boost].activate()
 
     def stop_boost(self, name_boost):
-        self.timers[name_boost].activate()
+        self.timers[name_boost].deactivate()
         self.timers[name_boost].freeze = True
         if name_boost == "speed boost":
-            self.max_speed = self.max_speed / 2
+            self.max_speed /= 1.5
             self.speed_angle /= 1.2
             self.speed_bullet = self.max_speed
         if name_boost == "attack boost":
-            self.radius_bullet *= 2
+            self.radius_bullet *= 1.5
             self.time_life_bullet *= 4
             self.timers["use attack"] = Timer(self.timers["use attack"].duration * 4)
             self.speed_bullet /= 1.25
@@ -206,7 +203,6 @@ class Player(pygame.sprite.Sprite):
                 return False
         except KeyError:
             pass
-        self.get_boost(effect)
         return True
 
     def import_image(self, path):
